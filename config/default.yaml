@@ -1,0 +1,10 @@
+name: First-Time Mobile User
+goals:
+  - Create account
+  - Verify email
+  - Start free trial
+tone: neutral
+noise_level: 0.1
+traits:
+  platform: "mobile"
+  patience: "medium"
