@@ -1,5 +1,0 @@
-initial_observation: |
-  You are on the landing page. Elements:
-  - Button '#signup-button' (text: 'Get Started')
-  - Link '#login'
-  - Input 'input#email' (placeholder: 'name@example.com')
