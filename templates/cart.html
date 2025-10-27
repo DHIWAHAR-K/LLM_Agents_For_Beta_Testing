@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shopping Cart - Scamazon</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    
+    <!-- Responsive Styles -->
+    <link rel="stylesheet" href="/static/styles.css">
+    
+    <style>
+        :root {
+            --amazon-orange: #FF9900;
+            --amazon-dark: #131921;
+        }
+
+        body {
+            background-color: #EAEDED;
+        }
+
+        .amazon-header {
+            background-color: var(--amazon-dark);
+            color: white;
+            padding: 0.75rem 0;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: white;
+            text-decoration: none;
+        }
+
+        .cart-page {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            margin: 2rem 0;
+        }
+
+        .cart-item {
+            border-bottom: 1px solid #eee;
+            padding: 1.5rem 0;
+            display: flex;
+            gap: 1.5rem;
+        }
+
+        .cart-item-image {
+            width: 120px;
+            height: 120px;
+            object-fit: cover;
+            border-radius: 4px;
+        }
+
+        .cart-item-details {
+            flex: 1;
+        }
+
+        .cart-item-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--amazon-dark);
+            margin-bottom: 0.5rem;
+            text-decoration: none;
+        }
+
+        .cart-item-price {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #B12704;
+            margin-bottom: 0.5rem;
+        }
+
+        .quantity-controls {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .quantity-btn {
+            width: 30px;
+            height: 30px;
+            border: 1px solid #ddd;
+            background: white;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .quantity-input {
+            width: 60px;
+            text-align: center;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 0.25rem;
+        }
+
+        .cart-summary {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            height: fit-content;
+            position: sticky;
+            top: 20px;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.75rem;
+        }
+
+        .summary-total {
+            font-size: 1.3rem;
+            font-weight: 700;
+            border-top: 2px solid #eee;
+            padding-top: 0.75rem;
+            margin-top: 0.75rem;
+        }
+
+        .btn-checkout {
+            background-color: var(--amazon-orange);
+            color: var(--amazon-dark);
+            border: none;
+            padding: 1rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-radius: 4px;
+            width: 100%;
+            margin-top: 1rem;
+        }
+
+        .btn-remove {
+            color: #B12704;
+            background: none;
+            border: none;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+        
+        /* Responsive Enhancements */
+        @media (max-width: 768px) {
+            .cart-summary {
+                position: static;
+                margin-top: 2rem;
+            }
+            
+            .cart-item {
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+                padding: 1rem 0;
+            }
+            
+            .cart-item-image {
+                width: 100%;
+                max-width: 200px;
+                height: auto;
+            }
+            
+            .cart-item-details {
+                width: 100%;
+                margin-top: 1rem;
+            }
+            
+            .quantity-controls {
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .cart-page {
+                padding: 1rem;
+            }
+            
+            .cart-summary {
+                padding: 1rem;
+            }
+            
+            .cart-item-title {
+                font-size: 0.95rem;
+            }
+            
+            .cart-item-price {
+                font-size: 1rem;
+            }
+            
+            .btn-checkout {
+                padding: 0.75rem;
+                font-size: 1rem;
+            }
+            
+            h2 {
+                font-size: 1.5rem;
+            }
+        }
+        
+        @media (min-width: 769px) and (max-width: 992px) {
+            .col-md-8 {
+                flex: 0 0 60%;
+                max-width: 60%;
+            }
+            
+            .col-md-4 {
+                flex: 0 0 40%;
+                max-width: 40%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- HEADER -->
+    <div class="amazon-header">
+        <div class="container">
+            <div class="d-flex align-items-center justify-content-between">
+                <a href="/" class="logo">
+                    <i class="bi bi-cart4"></i> Scamazon
+                </a>
+                <a href="/products" class="text-white text-decoration-none">
+                    <i class="bi bi-arrow-left"></i> Continue Shopping
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="container my-4">
+        <h2 class="mb-4">Shopping Cart</h2>
+
+        <div class="row">
+            <div class="col-md-8">
+                <div class="cart-page" id="cartItems">
+                    <div class="text-center py-5">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="cart-summary">
+                    <h4 class="mb-3">Order Summary</h4>
+                    <div class="summary-row">
+                        <span>Subtotal:</span>
+                        <span id="subtotal">$0.00</span>
+                    </div>
+                    <div class="summary-row">
+                        <span>Shipping:</span>
+                        <span id="shipping">$0.00</span>
+                    </div>
+                    <div class="summary-row summary-total">
+                        <span>Total:</span>
+                        <span id="total">$0.00</span>
+                    </div>
+                    <button class="btn-checkout" onclick="proceedToCheckout()">
+                        Proceed to Checkout
+                    </button>
+                    <a href="/products" class="btn btn-outline-secondary w-100 mt-2">
+                        Continue Shopping
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function loadCart() {
+            fetch('/api/cart?session_id=default')
+                .then(res => {
+                    if (!res.ok) {
+                        // If error, return empty cart structure
+                        return { items: [], total: 0 };
+                    }
+                    return res.json();
+                })
+                .then(data => {
+                    // Ensure data has the expected structure
+                    if (!data.items) {
+                        data.items = [];
+                    }
+                    if (data.total === undefined) {
+                        data.total = 0;
+                    }
+                    displayCart(data);
+                    updateSummary(data);
+                })
+                .catch(err => {
+                    console.error('Error loading cart:', err);
+                    // Show empty cart instead of error message
+                    displayCart({ items: [], total: 0 });
+                    updateSummary({ items: [], total: 0 });
+                });
+        }
+
+        function displayCart(cart) {
+            const container = document.getElementById('cartItems');
+            
+            if (!cart.items || cart.items.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-5">
+                        <i class="bi bi-cart-x" style="font-size: 4rem; color: #ccc;"></i>
+                        <h4 class="mt-3">Your cart is empty</h4>
+                        <a href="/products" class="btn btn-primary mt-3">Start Shopping</a>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = cart.items.map(item => {
+                const product = item.product || {};
+                const productId = product.id || item.product_id || '';
+                const productName = product.name || item.product_name || 'Unknown Product';
+                const productImage = product.image || item.product_image || '/images/placeholder.jpg';
+                const unitPrice = product.price || item.unit_price || 0;
+                const quantity = item.quantity || 1;
+                const subtotal = item.subtotal || (unitPrice * quantity);
+                
+                return `
+                <div class="cart-item">
+                    <img src="${productImage}" alt="${productName}" class="cart-item-image">
+                    <div class="cart-item-details">
+                        <a href="/product/${productId}" class="cart-item-title">${productName}</a>
+                        <div class="cart-item-price">$${unitPrice.toFixed(2)}</div>
+                        
+                        <div class="quantity-controls">
+                            <button class="quantity-btn" onclick="updateQuantity('${productId}', ${quantity - 1})">-</button>
+                            <input type="number" class="quantity-input" value="${quantity}" 
+                                   min="1" max="10" 
+                                   onchange="updateQuantity('${productId}', parseInt(this.value))">
+                            <button class="quantity-btn" onclick="updateQuantity('${productId}', ${quantity + 1})">+</button>
+                            <button class="btn-remove ms-3" onclick="removeItem('${productId}')">
+                                Remove
+                            </button>
+                        </div>
+                        
+                        <div class="mt-2">
+                            <strong>Subtotal: $${subtotal.toFixed(2)}</strong>
+                        </div>
+                    </div>
+                </div>
+            `;
+            }).join('');
+        }
+
+        function updateSummary(cart) {
+            const subtotal = cart.total || 0;
+            // Only charge shipping if cart has items
+            const shipping = (subtotal > 0 && subtotal < 50) ? 9.99 : 0;
+            const total = subtotal + shipping;
+
+            document.getElementById('subtotal').textContent = `$${subtotal.toFixed(2)}`;
+            document.getElementById('shipping').textContent = shipping > 0 ? `$${shipping.toFixed(2)}` : (subtotal > 0 ? 'FREE' : '$0.00');
+            document.getElementById('total').textContent = `$${total.toFixed(2)}`;
+
+            if (subtotal >= 50 && subtotal > 0) {
+                const shippingEl = document.getElementById('shipping').parentElement;
+                shippingEl.innerHTML = `
+                    <span>Shipping:</span>
+                    <span class="text-success">FREE</span>
+                `;
+            }
+        }
+
+        function updateQuantity(productId, quantity) {
+            if (quantity < 1) {
+                removeItem(productId);
+                return;
+            }
+            if (quantity > 10) {
+                quantity = 10;
+            }
+
+            fetch(`/api/cart/item/${productId}?session_id=default&quantity=${quantity}`, {
+                method: 'PUT'
+            })
+            .then(res => res.json())
+            .then(data => {
+                loadCart();
+            })
+            .catch(err => {
+                console.error('Error updating quantity:', err);
+                alert('Error updating quantity');
+            });
+        }
+
+        function removeItem(productId) {
+            if (!confirm('Remove this item from cart?')) return;
+
+            fetch(`/api/cart/item/${productId}?session_id=default`, {
+                method: 'DELETE'
+            })
+            .then(res => {
+                if (!res.ok) {
+                    return res.json().then(err => Promise.reject(err));
+                }
+                return res.json();
+            })
+            .then(data => {
+                loadCart();
+            })
+            .catch(err => {
+                console.error('Error removing item:', err);
+                alert('Error removing item: ' + (err.detail || err.message || 'Unknown error'));
+            });
+        }
+
+        function proceedToCheckout() {
+            fetch('/api/cart?session_id=default')
+                .then(res => res.json())
+                .then(data => {
+                    if (!data.items || data.items.length === 0) {
+                        alert('Your cart is empty!');
+                        return;
+                    }
+                    window.location.href = '/checkout';
+                });
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            loadCart();
+        });
+    </script>
+</body>
+</html>
+

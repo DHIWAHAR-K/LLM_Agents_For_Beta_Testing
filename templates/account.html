@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Account - Scamazon</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    
+    <!-- Responsive Styles -->
+    <link rel="stylesheet" href="/static/styles.css">
+    
+    <style>
+        :root {
+            --amazon-orange: #FF9900;
+            --amazon-dark: #131921;
+        }
+
+        body {
+            background-color: #EAEDED;
+        }
+
+        .amazon-header {
+            background-color: var(--amazon-dark);
+            color: white;
+            padding: 0.75rem 0;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: white;
+            text-decoration: none;
+        }
+
+        .account-container {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            margin: 2rem 0;
+        }
+
+        .account-nav {
+            border-right: 1px solid #eee;
+            padding-right: 2rem;
+        }
+
+        .nav-link-custom {
+            display: block;
+            padding: 0.75rem 1rem;
+            color: var(--amazon-dark);
+            text-decoration: none;
+            border-radius: 4px;
+            margin-bottom: 0.5rem;
+        }
+
+        .nav-link-custom:hover,
+        .nav-link-custom.active {
+            background-color: var(--amazon-orange);
+            color: var(--amazon-dark);
+        }
+
+        .order-card {
+            border: 1px solid #eee;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        /* Responsive Enhancements */
+        @media (max-width: 768px) {
+            .account-nav {
+                border-right: none;
+                border-bottom: 1px solid #eee;
+                padding-right: 0;
+                padding-bottom: 1rem;
+                margin-bottom: 1rem;
+            }
+            
+            .nav-link-custom {
+                display: inline-block;
+                margin-right: 0.5rem;
+                padding: 0.5rem 0.75rem;
+                font-size: 0.9rem;
+            }
+            
+            .account-container {
+                padding: 1.25rem;
+            }
+            
+            .order-card {
+                padding: 1rem;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .account-container {
+                padding: 1rem;
+            }
+            
+            .nav-link-custom {
+                width: calc(50% - 0.5rem);
+                text-align: center;
+                margin-bottom: 0.5rem;
+            }
+            
+            .order-card {
+                padding: 0.75rem;
+            }
+            
+            .order-card .d-flex {
+                flex-direction: column;
+                gap: 0.75rem;
+            }
+            
+            .order-card .text-end {
+                text-align: left !important;
+            }
+            
+            h2, h4 {
+                font-size: 1.3rem;
+            }
+        }
+        
+        .section-content {
+            display: none;
+        }
+        
+        .section-content.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="amazon-header">
+        <div class="container">
+            <div class="d-flex align-items-center justify-content-between">
+                <a href="/" class="logo">
+                    <i class="bi bi-cart4"></i> Scamazon
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="container my-4">
+        <h2 class="mb-4">My Account</h2>
+
+        <div class="row">
+            <div class="col-md-3">
+                <div class="account-container account-nav">
+                    <a href="#" class="nav-link-custom active" onclick="showSection('orders')">Order History</a>
+                    <a href="#" class="nav-link-custom" onclick="showSection('profile')">Profile</a>
+                    <a href="#" class="nav-link-custom" onclick="showSection('addresses')">Addresses</a>
+                    <a href="#" class="nav-link-custom" onclick="showSection('payment')">Payment Methods</a>
+                </div>
+            </div>
+
+            <div class="col-md-9">
+                <!-- ORDER HISTORY -->
+                <div class="account-container section-content active" id="orders-section">
+                    <h4 class="mb-3">Order History</h4>
+                    <div id="ordersList">
+                        <div class="text-center py-5">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PROFILE -->
+                <div class="account-container section-content" id="profile-section">
+                    <h4 class="mb-3">Profile Information</h4>
+                    <form id="profileForm">
+                        <div class="mb-3">
+                            <label class="form-label">Name</label>
+                            <input type="text" class="form-control" id="profileName" value="Demo User">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Email</label>
+                            <input type="email" class="form-control" id="profileEmail" value="demo@example.com" readonly>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                    </form>
+                </div>
+
+                <!-- ADDRESSES -->
+                <div class="account-container section-content" id="addresses-section">
+                    <h4 class="mb-3">Saved Addresses</h4>
+                    <p class="text-muted">No saved addresses. Addresses will be saved during checkout.</p>
+                </div>
+
+                <!-- PAYMENT -->
+                <div class="account-container section-content" id="payment-section">
+                    <h4 class="mb-3">Payment Methods</h4>
+                    <p class="text-muted">No saved payment methods. Payment methods are processed securely during checkout.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function showSection(section) {
+            // Hide all sections
+            document.querySelectorAll('.section-content').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.nav-link-custom').forEach(l => l.classList.remove('active'));
+
+            // Show selected section
+            document.getElementById(`${section}-section`).classList.add('active');
+            event.target.classList.add('active');
+
+            if (section === 'orders') {
+                loadOrders();
+            }
+        }
+
+        function loadOrders() {
+            fetch('/api/orders')
+                .then(res => res.json())
+                .then(data => {
+                    const container = document.getElementById('ordersList');
+                    
+                    if (!data.orders || data.orders.length === 0) {
+                        container.innerHTML = `
+                            <div class="text-center py-5">
+                                <i class="bi bi-bag-x" style="font-size: 4rem; color: #ccc;"></i>
+                                <h5 class="mt-3">No orders yet</h5>
+                                <p class="text-muted">Start shopping to see your orders here</p>
+                                <a href="/products" class="btn btn-primary mt-3">Start Shopping</a>
+                            </div>
+                        `;
+                        return;
+                    }
+
+                    container.innerHTML = data.orders.map(order => `
+                        <div class="order-card">
+                            <div class="d-flex justify-content-between align-items-start mb-3">
+                                <div>
+                                    <strong>Order #${order.order_id.slice(0, 8)}</strong><br>
+                                    <small class="text-muted">Placed on ${new Date(order.created_at).toLocaleDateString()}</small>
+                                </div>
+                                <div class="text-end">
+                                    <strong>$${order.total.toFixed(2)}</strong><br>
+                                    <span class="badge bg-success">${order.status}</span>
+                                </div>
+                            </div>
+                            <div class="mb-2">
+                                <strong>Items:</strong> ${order.items.length} item(s)
+                            </div>
+                            <div>
+                                <strong>Estimated Delivery:</strong> ${order.estimated_delivery}
+                            </div>
+                            <a href="/order-confirmation/${order.order_id}" class="btn btn-sm btn-outline-primary mt-2">
+                                View Details
+                            </a>
+                        </div>
+                    `).join('');
+                })
+                .catch(err => {
+                    console.error('Error loading orders:', err);
+                    document.getElementById('ordersList').innerHTML = 
+                        '<div class="text-center text-danger">Error loading orders</div>';
+                });
+        }
+
+        document.getElementById('profileForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            alert('Profile updated! (This is a demo - changes are not saved)');
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            loadOrders();
+        });
+    </script>
+</body>
+</html>
+

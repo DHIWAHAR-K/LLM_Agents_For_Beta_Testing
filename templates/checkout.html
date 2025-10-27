@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout - Scamazon</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    
+    <!-- Responsive Styles -->
+    <link rel="stylesheet" href="/static/styles.css">
+    
+    <style>
+        :root {
+            --amazon-orange: #FF9900;
+            --amazon-dark: #131921;
+        }
+
+        body {
+            background-color: #EAEDED;
+        }
+
+        .amazon-header {
+            background-color: var(--amazon-dark);
+            color: white;
+            padding: 0.75rem 0;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: white;
+            text-decoration: none;
+        }
+
+        .checkout-container {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            margin: 2rem 0;
+        }
+
+        .step-indicator {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 2rem;
+            padding: 1rem 0;
+            border-bottom: 2px solid #eee;
+        }
+
+        .step {
+            flex: 1;
+            text-align: center;
+            position: relative;
+        }
+
+        .step.active .step-number {
+            background-color: var(--amazon-orange);
+            color: var(--amazon-dark);
+        }
+
+        .step.completed .step-number {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .step-number {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #ddd;
+            color: #666;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 0.5rem;
+            font-weight: 600;
+        }
+
+        .step-content {
+            display: none;
+        }
+
+        .step-content.active {
+            display: block;
+        }
+
+        .order-summary {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+        }
+
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .btn-primary-custom {
+            background-color: var(--amazon-orange);
+            color: var(--amazon-dark);
+            border: none;
+            padding: 1rem 2rem;
+            font-weight: 600;
+            border-radius: 4px;
+        }
+        
+        /* Responsive Enhancements */
+        @media (max-width: 768px) {
+            .step-indicator {
+                flex-wrap: wrap;
+                gap: 0.5rem;
+            }
+            
+            .step {
+                flex: 1 1 auto;
+                min-width: calc(33.333% - 0.5rem);
+            }
+            
+            .step-title {
+                font-size: 0.85rem;
+            }
+            
+            .step-number {
+                width: 35px;
+                height: 35px;
+                font-size: 0.9rem;
+            }
+            
+            .order-summary {
+                position: static;
+                margin-top: 2rem;
+            }
+            
+            .checkout-container {
+                padding: 1.25rem;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .checkout-container {
+                padding: 1rem;
+            }
+            
+            .step-indicator {
+                padding: 0.5rem 0;
+            }
+            
+            .step-number {
+                width: 30px;
+                height: 30px;
+                font-size: 0.8rem;
+                margin-bottom: 0.25rem;
+            }
+            
+            .step-title {
+                font-size: 0.75rem;
+            }
+            
+            .btn-primary-custom {
+                padding: 0.75rem 1.5rem;
+                font-size: 0.95rem;
+            }
+            
+            h2, h4 {
+                font-size: 1.3rem;
+            }
+            
+            .order-summary {
+                padding: 1rem;
+            }
+            
+            .summary-item {
+                font-size: 0.9rem;
+            }
+        }
+        
+        @media (min-width: 769px) and (max-width: 992px) {
+            .col-md-8 {
+                flex: 0 0 60%;
+                max-width: 60%;
+            }
+            
+            .col-md-4 {
+                flex: 0 0 40%;
+                max-width: 40%;
+            }
+        }
+        
+        .section-content {
+            display: none;
+        }
+        
+        .section-content.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <!-- HEADER -->
+    <div class="amazon-header">
+        <div class="container">
+            <div class="d-flex align-items-center justify-content-between">
+                <a href="/" class="logo">
+                    <i class="bi bi-cart4"></i> Scamazon
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="container my-4">
+        <h2 class="mb-4">Checkout</h2>
+
+        <!-- STEP INDICATOR -->
+        <div class="step-indicator">
+            <div class="step active" id="step1-indicator">
+                <div class="step-number">1</div>
+                <div class="step-title">Shipping</div>
+            </div>
+            <div class="step" id="step2-indicator">
+                <div class="step-number">2</div>
+                <div class="step-title">Payment</div>
+            </div>
+            <div class="step" id="step3-indicator">
+                <div class="step-number">3</div>
+                <div class="step-title">Review</div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-8">
+                <!-- STEP 1: SHIPPING -->
+                <div class="checkout-container step-content active" id="step1">
+                    <h4 class="mb-3">Shipping Address</h4>
+                    <form id="shippingForm">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">First Name</label>
+                                <input type="text" class="form-control" id="firstName" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Last Name</label>
+                                <input type="text" class="form-control" id="lastName" required>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Address</label>
+                            <input type="text" class="form-control" id="address" required>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">City</label>
+                                <input type="text" class="form-control" id="city" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Zip Code</label>
+                                <input type="text" class="form-control" id="zipCode" required>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Phone</label>
+                            <input type="tel" class="form-control" id="phone" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary-custom">Continue to Payment</button>
+                    </form>
+                </div>
+
+                <!-- STEP 2: PAYMENT -->
+                <div class="checkout-container step-content" id="step2">
+                    <h4 class="mb-3">Payment Method</h4>
+                    <form id="paymentForm">
+                        <div class="mb-3">
+                            <label class="form-label">Card Number</label>
+                            <input type="text" class="form-control" id="cardNumber" placeholder="1234 5678 9012 3456" required>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Expiry Date</label>
+                                <input type="text" class="form-control" id="expiryDate" placeholder="MM/YY" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">CVV</label>
+                                <input type="text" class="form-control" id="cvv" placeholder="123" required>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Cardholder Name</label>
+                            <input type="text" class="form-control" id="cardholderName" required>
+                        </div>
+                        <button type="button" class="btn btn-secondary me-2" onclick="previousStep(1)">Back</button>
+                        <button type="submit" class="btn btn-primary-custom">Continue to Review</button>
+                    </form>
+                </div>
+
+                <!-- STEP 3: REVIEW -->
+                <div class="checkout-container step-content" id="step3">
+                    <h4 class="mb-3">Review Your Order</h4>
+                    <div id="reviewContent"></div>
+                    <div class="mt-4">
+                        <button type="button" class="btn btn-secondary me-2" onclick="previousStep(2)">Back</button>
+                        <button type="button" class="btn btn-primary-custom" onclick="placeOrder()">Place Order</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="order-summary">
+                    <h5 class="mb-3">Order Summary</h5>
+                    <div id="orderSummaryContent"></div>
+                    <div class="summary-item mt-3" style="border-top: 2px solid #333; padding-top: 1rem;">
+                        <strong>Total:</strong>
+                        <strong id="orderTotal">$0.00</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let currentStep = 1;
+        let shippingData = {};
+        let paymentData = {};
+
+        function loadOrderSummary() {
+            fetch('/api/cart?session_id=default')
+                .then(res => res.json())
+                .then(data => {
+                    const subtotal = data.total || 0;
+                    const shipping = subtotal >= 50 ? 0 : 9.99;
+                    const total = subtotal + shipping;
+
+                    const container = document.getElementById('orderSummaryContent');
+                    container.innerHTML = data.items.map(item => `
+                        <div class="summary-item">
+                            <span>${item.product_name} x${item.quantity}</span>
+                            <span>$${item.subtotal.toFixed(2)}</span>
+                        </div>
+                    `).join('') + `
+                        <div class="summary-item">
+                            <span>Subtotal:</span>
+                            <span>$${subtotal.toFixed(2)}</span>
+                        </div>
+                        <div class="summary-item">
+                            <span>Shipping:</span>
+                            <span>${shipping > 0 ? '$' + shipping.toFixed(2) : 'FREE'}</span>
+                        </div>
+                    `;
+
+                    document.getElementById('orderTotal').textContent = `$${total.toFixed(2)}`;
+                });
+        }
+
+        function showStep(step) {
+            // Hide all steps
+            document.querySelectorAll('.step-content').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.step').forEach(s => {
+                s.classList.remove('active', 'completed');
+            });
+
+            // Show current step
+            document.getElementById(`step${step}`).classList.add('active');
+            document.getElementById(`step${step}-indicator`).classList.add('active');
+
+            // Mark previous steps as completed
+            for (let i = 1; i < step; i++) {
+                document.getElementById(`step${i}-indicator`).classList.add('completed');
+            }
+
+            currentStep = step;
+
+            if (step === 3) {
+                loadReviewContent();
+            }
+        }
+
+        function previousStep(step) {
+            showStep(step);
+        }
+
+        function loadReviewContent() {
+            const container = document.getElementById('reviewContent');
+            container.innerHTML = `
+                <div class="mb-4">
+                    <h5>Shipping Address</h5>
+                    <p>
+                        ${shippingData.firstName} ${shippingData.lastName}<br>
+                        ${shippingData.address}<br>
+                        ${shippingData.city}, ${shippingData.zipCode}<br>
+                        Phone: ${shippingData.phone}
+                    </p>
+                </div>
+                <div class="mb-4">
+                    <h5>Payment Method</h5>
+                    <p>
+                        Card ending in ${paymentData.cardNumber.slice(-4)}<br>
+                        Expires: ${paymentData.expiryDate}
+                    </p>
+                </div>
+            `;
+        }
+
+        document.getElementById('shippingForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            shippingData = {
+                firstName: document.getElementById('firstName').value,
+                lastName: document.getElementById('lastName').value,
+                address: document.getElementById('address').value,
+                city: document.getElementById('city').value,
+                zipCode: document.getElementById('zipCode').value,
+                phone: document.getElementById('phone').value
+            };
+            showStep(2);
+        });
+
+        document.getElementById('paymentForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            paymentData = {
+                cardNumber: document.getElementById('cardNumber').value,
+                expiryDate: document.getElementById('expiryDate').value,
+                cvv: document.getElementById('cvv').value,
+                cardholderName: document.getElementById('cardholderName').value
+            };
+            showStep(3);
+        });
+
+        function placeOrder() {
+            fetch('/api/cart?session_id=default')
+                .then(res => res.json())
+                .then(cart => {
+                    if (!cart.items || cart.items.length === 0) {
+                        alert('Your cart is empty!');
+                        return;
+                    }
+
+                    const orderData = {
+                        session_id: 'default',
+                        shipping_address: shippingData,
+                        payment_method: 'Card ending in ' + paymentData.cardNumber.slice(-4)
+                    };
+
+                    fetch('/api/checkout', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify(orderData)
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        window.location.href = `/order-confirmation/${data.order.order_id}`;
+                    })
+                    .catch(err => {
+                        console.error('Error placing order:', err);
+                        alert('Error placing order. Please try again.');
+                    });
+                });
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            loadOrderSummary();
+        });
+    </script>
+</body>
+</html>
+

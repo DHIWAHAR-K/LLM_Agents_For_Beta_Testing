@@ -1,0 +1,1244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scamazon.com: Online Shopping for Electronics, Apparel, Computers, Books, DVDs & more</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    
+    <!-- Responsive Styles -->
+    <link rel="stylesheet" href="/static/styles.css">
+    
+    <style>
+        :root {
+            --amazon-orange: #FF9900;
+            --amazon-dark: #131921;
+            --amazon-light: #232F3E;
+            --amazon-hover: #febd69;
+            --amazon-teal: #007185;
+            --amazon-dark-teal: #00586B;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #EAEDED 0%, #F5F5F5 100%);
+            font-family: 'Amazon Ember', Arial, sans-serif;
+            font-size: 14px;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        @keyframes shimmer {
+            0% { background-position: -1000px 0; }
+            100% { background-position: 1000px 0; }
+        }
+
+        .loading-skeleton {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 1000px 100%;
+            animation: shimmer 2s infinite;
+        }
+
+        /* Additional page-specific responsive styles */
+        @media (max-width: 576px) {
+            .delivery-location .location-text {
+                font-size: 0.7rem;
+            }
+            
+            .header-link .main-text {
+                font-size: 0.7rem;
+            }
+            
+            .price-card {
+                margin-bottom: 1rem;
+            }
+            
+            .product-section {
+                padding: 1rem;
+                margin-bottom: 1rem;
+            }
+            
+            .hero-image-placeholder {
+                width: 100%;
+                max-width: 250px;
+                height: 180px;
+                margin: 1rem auto 0;
+            }
+        }
+        
+        @media (min-width: 577px) and (max-width: 768px) {
+            .product-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .hero-image-placeholder {
+                width: 250px;
+                height: 200px;
+            }
+        }
+        
+        @media (min-width: 769px) and (max-width: 992px) {
+            .product-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+        
+        @media (min-width: 993px) and (max-width: 1200px) {
+            .product-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+        
+        @media (min-width: 1201px) {
+            .product-grid {
+                grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            }
+        }
+
+        /* HEADER STYLES */
+        .amazon-header {
+            background: linear-gradient(180deg, var(--amazon-dark) 0%, var(--amazon-light) 100%);
+            color: white;
+            padding: 0.5rem 0;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+        }
+
+        .header-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.5rem 1rem;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .amazon-logo {
+            color: white;
+            font-size: 1.5rem;
+            font-weight: 700;
+            text-decoration: none;
+            padding: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .amazon-logo:hover {
+            color: var(--amazon-orange);
+            transform: scale(1.05);
+        }
+
+        .delivery-location {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.25rem;
+            padding: 0.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-radius: 4px;
+        }
+
+        .delivery-location:hover {
+            outline: 1px solid white;
+            background: rgba(255,255,255,0.1);
+        }
+
+        .delivery-location .small {
+            font-size: 0.75rem;
+            color: #ccc;
+        }
+
+        .delivery-location .location-text {
+            font-weight: 600;
+            font-size: 0.875rem;
+        }
+
+        .search-bar {
+            flex: 1;
+            max-width: 1000px;
+            display: flex;
+            margin: 0 1rem;
+        }
+
+        .search-dropdown {
+            background-color: #F3F3F3;
+            border: none;
+            border-radius: 4px 0 0 4px;
+            padding: 0.5rem 0.75rem;
+            font-size: 0.75rem;
+            color: #666;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .search-dropdown:hover {
+            background-color: #e0e0e0;
+        }
+
+        .search-input {
+            flex: 1;
+            border: none;
+            padding: 0.75rem 1rem;
+            font-size: 0.875rem;
+        }
+
+        .search-input:focus {
+            outline: 2px solid var(--amazon-orange);
+        }
+
+        .search-button {
+            background: linear-gradient(135deg, var(--amazon-orange) 0%, #FFB847 100%);
+            border: none;
+            border-radius: 0 4px 4px 0;
+            padding: 0.5rem 1rem;
+            color: var(--amazon-dark);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .search-button::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.5);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .search-button:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .search-button:hover {
+            background: linear-gradient(135deg, #FFB847 0%, var(--amazon-hover) 100%);
+            transform: scale(1.05);
+            box-shadow: 0 4px 15px rgba(255, 153, 0, 0.4);
+        }
+
+        .search-button:active {
+            transform: scale(0.95);
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .header-link {
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-radius: 4px;
+        }
+
+        .header-link:hover {
+            outline: 1px solid white;
+            background: rgba(255,255,255,0.1);
+        }
+
+        .header-link .small {
+            font-size: 0.75rem;
+            color: #ccc;
+        }
+
+        .header-link .main-text {
+            font-weight: 600;
+            font-size: 0.875rem;
+        }
+
+        .cart-link {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            position: relative;
+            padding: 0.5rem;
+            transition: all 0.3s ease;
+            border-radius: 4px;
+        }
+
+        .cart-link:hover {
+            outline: 1px solid white;
+            background: rgba(255,255,255,0.1);
+        }
+
+        .cart-icon-large {
+            font-size: 2rem;
+            color: white;
+        }
+
+        .cart-count {
+            position: absolute;
+            top: 0;
+            left: 20px;
+            background: linear-gradient(135deg, var(--amazon-orange), #FFB847);
+            color: var(--amazon-dark);
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: bold;
+            box-shadow: 0 2px 8px rgba(255, 153, 0, 0.5);
+            transition: all 0.3s ease;
+        }
+
+        .cart-count.updated {
+            animation: cartPulse 0.6s ease-out;
+        }
+
+        @keyframes cartPulse {
+            0%, 100% { transform: scale(1); }
+            25% { transform: scale(1.3); }
+            50% { transform: scale(0.9); }
+            75% { transform: scale(1.1); }
+        }
+
+        /* NAVIGATION BAR */
+        .amazon-nav {
+            background-color: var(--amazon-light);
+            padding: 0.5rem 0;
+        }
+
+        .nav-container {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            padding: 0 1rem;
+        }
+
+        .nav-hamburger {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            color: white;
+            padding: 0.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-radius: 4px;
+        }
+
+        .nav-hamburger:hover {
+            outline: 1px solid white;
+            background: rgba(255,255,255,0.1);
+        }
+
+        .nav-link {
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 0.75rem;
+            font-size: 0.875rem;
+            white-space: nowrap;
+            transition: all 0.3s ease;
+            border-radius: 4px;
+        }
+
+        .nav-link:hover {
+            outline: 1px solid white;
+            background: rgba(255,255,255,0.1);
+        }
+
+        /* HERO BANNER */
+        .hero-banner {
+            background: linear-gradient(135deg, #00586B 0%, #007185 50%, #00A5C9 100%);
+            color: white;
+            padding: 3rem 0;
+            margin-bottom: 1.5rem;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 8px 32px rgba(0, 117, 133, 0.3);
+        }
+
+        .hero-banner::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at 20% 50%, rgba(255,255,255,0.1) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 80%, rgba(255,255,255,0.08) 0%, transparent 50%);
+            pointer-events: none;
+        }
+
+        .hero-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-text {
+            flex: 1;
+        }
+
+        .hero-text h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            animation: slideUp 0.6s ease-out;
+        }
+
+        .hero-text .logo-text {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+            animation: slideUp 0.8s ease-out;
+        }
+
+        .hero-text .disclaimer {
+            font-size: 0.75rem;
+            margin-top: 0.5rem;
+            animation: slideUp 1s ease-out;
+        }
+
+        .hero-image {
+            flex: 1;
+            text-align: right;
+        }
+
+        .hero-image-placeholder {
+            width: 300px;
+            height: 250px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+            margin-left: auto;
+            box-shadow: 0 8px 24px rgba(102, 126, 234, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .hero-image-placeholder:hover {
+            transform: scale(1.05);
+            box-shadow: 0 12px 32px rgba(102, 126, 234, 0.4);
+        }
+
+        .hero-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            padding: 1rem;
+            cursor: pointer;
+            font-size: 1.5rem;
+            transition: all 0.3s ease;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(10px);
+        }
+
+        .hero-nav:hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateY(-50%) scale(1.1);
+        }
+
+        .hero-nav.prev {
+            left: 10px;
+        }
+
+        .hero-nav.next {
+            right: 10px;
+        }
+
+        /* PRODUCT SECTIONS */
+        .product-section {
+            background: white;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            max-width: 1400px;
+            margin-left: auto;
+            margin-right: auto;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            animation: slideUp 0.6s ease-out;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .product-section:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+        }
+
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--amazon-dark);
+        }
+
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .product-grid-2x2 {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.5rem;
+        }
+
+        .product-grid-2x2 .product-card {
+            padding: 0.5rem;
+        }
+
+        .product-grid-2x2 .product-image {
+            height: 100px;
+        }
+
+        .product-card {
+            background: linear-gradient(135deg, #ffffff 0%, #f9f9f9 100%);
+            border: 1px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 1rem;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .product-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.5s;
+        }
+
+        .product-card:hover::before {
+            left: 100%;
+        }
+
+        .product-card:hover {
+            box-shadow: 0 8px 24px rgba(255, 153, 0, 0.25), 0 4px 12px rgba(0,0,0,0.12);
+            transform: translateY(-8px) scale(1.02);
+            border-color: var(--amazon-orange);
+        }
+
+        .product-image {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+            background: linear-gradient(135deg, #f5f5f5 0%, #e0e0e0 100%);
+            margin-bottom: 0.5rem;
+            border-radius: 8px;
+            transition: transform 0.4s ease, box-shadow 0.4s ease;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .product-card:hover .product-image {
+            transform: scale(1.05);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+        }
+
+        .product-card:hover .quick-add-btn {
+            opacity: 1 !important;
+        }
+
+        .product-image-small {
+            height: 120px;
+        }
+
+        .product-image-large {
+            height: 250px;
+        }
+
+        .product-title {
+            font-size: 0.875rem;
+            color: #007185;
+            margin-bottom: 0.5rem;
+            text-decoration: none;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            line-height: 1.3;
+            transition: all 0.3s ease;
+        }
+
+        .product-title:hover {
+            color: var(--amazon-orange);
+            text-decoration: underline;
+        }
+
+        .product-rating {
+            color: var(--amazon-orange);
+            font-size: 0.75rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .product-price {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: #B12704;
+            margin-top: auto;
+        }
+
+        .price-section {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .price-section .price-label {
+            font-size: 0.75rem;
+            color: #666;
+        }
+
+        .price-section .price-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 0.5rem;
+        }
+
+        .price-card {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 0.75rem;
+            text-align: center;
+            cursor: pointer;
+            background: white;
+            transition: all 0.3s ease;
+        }
+
+        .price-card:hover {
+            border-color: var(--amazon-orange);
+            box-shadow: 0 4px 12px rgba(255, 153, 0, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .price-card-title {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--amazon-dark);
+            font-size: 0.875rem;
+        }
+
+        .section-link {
+            color: #007185;
+            text-decoration: none;
+            font-size: 0.875rem;
+            margin-top: 1rem;
+            display: inline-block;
+            transition: all 0.3s ease;
+        }
+
+        .section-link:hover {
+            color: var(--amazon-orange);
+            text-decoration: underline;
+        }
+
+        /* SPECIAL SECTIONS */
+        .healthcare-section {
+            background: white;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            max-width: 1400px;
+            margin-left: auto;
+            margin-right: auto;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            animation: slideUp 0.6s ease-out;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .healthcare-section:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+        }
+
+        .healthcare-content {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .healthcare-image {
+            width: 300px;
+            height: 200px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            box-shadow: 0 8px 24px rgba(102, 126, 234, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .healthcare-image:hover {
+            transform: scale(1.05);
+            box-shadow: 0 12px 32px rgba(102, 126, 234, 0.4);
+        }
+
+        .healthcare-text {
+            flex: 1;
+        }
+
+        /* FOOTER */
+        .back-to-top {
+            background-color: var(--amazon-light);
+            text-align: center;
+            padding: 1rem;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .back-to-top:hover {
+            background-color: var(--amazon-dark);
+        }
+
+        .footer {
+            background-color: var(--amazon-light);
+            color: white;
+            padding: 3rem 0 1rem 0;
+        }
+
+        .footer h5 {
+            color: white;
+            font-size: 1rem;
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+
+        .footer-link {
+            color: #DDD;
+            text-decoration: none;
+            display: block;
+            padding: 0.5rem 0;
+            font-size: 0.875rem;
+            transition: all 0.3s ease;
+        }
+
+        .footer-link:hover {
+            color: white;
+            text-decoration: underline;
+        }
+
+        .footer-bottom {
+            background-color: var(--amazon-dark);
+            padding: 1rem 0;
+            margin-top: 2rem;
+            text-align: center;
+            color: #999;
+            font-size: 0.75rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- HEADER -->
+    <div class="amazon-header">
+        <div class="header-top" id="div-1">
+            <div class="header-left">
+                <a href="/" class="amazon-logo" id="a-1">
+                    <i class="bi bi-bag-check"></i> scamazon
+                </a>
+                <div class="delivery-location">
+                    <i class="bi bi-geo-alt"></i>
+                    <div>
+                        <div class="small">Deliver to</div>
+                        <div class="location-text">Dhiwahar Jersey City 07306</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="search-bar">
+                <select class="search-dropdown">
+                    <option>All</option>
+                    <option>Electronics</option>
+                    <option>Sports</option>
+                    <option>Home</option>
+                </select>
+                <input type="text" id="searchInput" class="search-input" placeholder="Search Scamazon">
+                <button class="search-button" id="searchBtn">
+                    <i class="bi bi-search"></i>
+                </button>
+            </div>
+            
+            <div class="header-right">
+                <div class="header-link">
+                    <div class="small"><i class="bi bi-flag"></i> EN-</div>
+                    <div class="main-text">▼</div>
+                </div>
+                <a href="/account" class="header-link" id="a-2">
+                    <div class="small">Hello, Dhiwahar</div>
+                    <div class="main-text">Account & Lists</div>
+                </a>
+                <a href="/account" class="header-link" id="a-3">
+                    <div class="small">Returns</div>
+                    <div class="main-text">& Orders</div>
+                </a>
+                <a href="/cart" class="cart-link">
+                    <i class="bi bi-cart3 cart-icon-large"></i>
+                    <span class="cart-count" id="cartCount">0</span>
+                    <div class="main-text">Cart</div>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- NAVIGATION BAR -->
+    <div class="amazon-nav">
+        <div class="nav-container">
+            <div class="nav-hamburger">
+                <i class="bi bi-list"></i>
+                <span>All</span>
+            </div>
+            <a href="/products" class="nav-link">Holiday Deals</a>
+            <a href="/products" class="nav-link">Scamazon Haul</a>
+            <a href="/products" class="nav-link">Same-Day Delivery</a>
+            <a href="/products?category=Electronics" class="nav-link">Cell Phones</a>
+            <a href="/products" class="nav-link">Medical Care ▾</a>
+            <a href="/products" class="nav-link">Prime Video</a>
+            <a href="/products?category=Home" class="nav-link">Scamazon Home</a>
+            <a href="/products" class="nav-link">Pet Supplies</a>
+            <a href="/products" class="nav-link">Pharmacy</a>
+            <a href="/products" class="nav-link">Household, Health & Baby Care</a>
+            <a href="/products" class="nav-link">Subscribe & Save</a>
+            <a href="/products" class="nav-link">Buy Again</a>
+            <a href="/products" class="nav-link">Scamazon Basics</a>
+        </div>
+    </div>
+
+    <!-- HERO BANNER -->
+    <div class="hero-banner">
+        <button class="hero-nav prev"><i class="bi bi-chevron-left"></i></button>
+        <div class="hero-content">
+            <div class="hero-text">
+                <h1>Prime members save up to 80% on meds*</h1>
+                <div class="logo-text">scamazon pharmacy</div>
+                <div class="disclaimer">*Restrictions apply</div>
+            </div>
+            <div class="hero-image">
+                <div class="hero-image-placeholder">
+                    Healthcare Professional
+                </div>
+            </div>
+        </div>
+        <button class="hero-nav next"><i class="bi bi-chevron-right"></i></button>
+    </div>
+
+    <!-- SHOP GIFTS BY PRICE -->
+    <div class="product-section">
+        <h2 class="section-title">Shop gifts by price</h2>
+        <div class="price-section">
+            <div class="price-label">Shop by price range</div>
+            <div class="price-grid">
+                <div class="price-card" id="div-3">
+                    <div class="price-card-title">Under $10</div>
+                    <div class="product-grid-2x2" id="under10Products"></div>
+                </div>
+                <div class="price-card" id="div-4">
+                    <div class="price-card-title">Under $25</div>
+                    <div class="product-grid-2x2" id="under25Products"></div>
+                </div>
+                <div class="price-card" id="div-5">
+                    <div class="price-card-title">Under $50</div>
+                    <div class="product-grid-2x2" id="under50Products"></div>
+                </div>
+                <div class="price-card" id="div-6">
+                    <div class="price-card-title">Deals</div>
+                    <div class="product-grid-2x2" id="dealsProducts"></div>
+                </div>
+            </div>
+            <a href="/products?sort=price_asc" class="section-link">Discover more for Holiday</a>
+        </div>
+    </div>
+
+    <!-- PICK UP WHERE YOU LEFT OFF -->
+    <div class="product-section">
+        <h2 class="section-title">Pick up where you left off</h2>
+        <div class="product-grid" id="pickupProducts"></div>
+        <a href="/products" class="section-link">See more</a>
+    </div>
+
+    <!-- BUY AGAIN -->
+    <div class="product-section">
+        <h2 class="section-title">Buy again</h2>
+        <div class="product-grid" id="buyAgainProducts"></div>
+        <a href="/products" class="section-link">More in Buy Again</a>
+    </div>
+
+    <!-- TRULY CONNECTED HEALTHCARE -->
+    <div class="healthcare-section">
+        <div class="healthcare-content">
+            <div class="healthcare-image">
+                Healthcare Services
+            </div>
+            <div class="healthcare-text">
+                <h2 class="section-title">Truly connected healthcare</h2>
+                <p>Experience seamless healthcare services with integrated solutions.</p>
+                <a href="/products" class="section-link">Learn more about One Medical</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- KEEP SHOPPING FOR -->
+    <div class="product-section">
+        <h2 class="section-title">Keep shopping for</h2>
+        <div class="product-grid" id="keepShoppingProducts"></div>
+    </div>
+
+    <!-- CONTINUE SHOPPING DEALS -->
+    <div class="product-section">
+        <h2 class="section-title">Continue shopping deals</h2>
+        <div class="product-grid" id="continueDealsProducts"></div>
+    </div>
+
+    <!-- CATEGORIES TO EXPLORE -->
+    <div class="product-section">
+        <h2 class="section-title">Categories to explore</h2>
+        <div class="product-grid" id="categoriesProducts"></div>
+    </div>
+
+    <!-- DEALS RELATED TO ITEMS YOU'VE SAVED -->
+    <div class="product-section">
+        <h2 class="section-title">Deals related to items you've saved</h2>
+        <div class="product-grid" id="savedDealsProducts"></div>
+    </div>
+
+    <!-- BACK TO TOP -->
+    <div class="back-to-top" onclick="window.scrollTo({top: 0, behavior: 'smooth'})">
+        Back to top
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-3">
+                    <h5>Get to Know Us</h5>
+                    <a href="#" class="footer-link">Careers</a>
+                    <a href="#" class="footer-link">Blog</a>
+                    <a href="#" class="footer-link">About Scamazon</a>
+                    <a href="#" class="footer-link">Investor Relations</a>
+                    <a href="#" class="footer-link">Scamazon Devices</a>
+                    <a href="#" class="footer-link">Scamazon Science</a>
+                </div>
+                <div class="col-md-3">
+                    <h5>Make Money with Us</h5>
+                    <a href="#" class="footer-link">Sell products on Scamazon</a>
+                    <a href="#" class="footer-link">Sell on Scamazon Business</a>
+                    <a href="#" class="footer-link">Sell apps on Scamazon</a>
+                    <a href="#" class="footer-link">Become an Affiliate</a>
+                    <a href="#" class="footer-link">Advertise Your Products</a>
+                    <a href="#" class="footer-link">Self-Publish with Us</a>
+                    <a href="#" class="footer-link">Host a Scamazon Hub</a>
+                </div>
+                <div class="col-md-3">
+                    <h5>Scamazon Payment Products</h5>
+                    <a href="#" class="footer-link">Scamazon Business Card</a>
+                    <a href="#" class="footer-link">Shop with Points</a>
+                    <a href="#" class="footer-link">Reload Your Balance</a>
+                    <a href="#" class="footer-link">Scamazon Currency Converter</a>
+                </div>
+                <div class="col-md-3">
+                    <h5>Need Help?</h5>
+                    <a href="#" class="footer-link">COVID-19 and Scamazon</a>
+                    <a href="#" class="footer-link">Your Account</a>
+                    <a href="#" class="footer-link">Your Orders</a>
+                    <a href="#" class="footer-link">Shipping Rates & Policies</a>
+                    <a href="#" class="footer-link">Returns & Replacements</a>
+                    <a href="#" class="footer-link">Manage Your Content and Devices</a>
+                    <a href="#" class="footer-link">Scamazon Assistant</a>
+                    <a href="#" class="footer-link">Help</a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <div class="container">
+                <p class="mb-0">&copy; 1996-2024, Scamazon.com, Inc. or its affiliates</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Mock product data - Expanded catalog
+        const mockProducts = [
+            { id: 1, name: "Wireless Bluetooth Headphones with Noise Cancellation", price: 49.99, rating: 4.5, reviews_count: 1250, image: "/images/product_1_wireless_bluetooth_headphones_with_noise_cancellat.jpg" },
+            { id: 2, name: "Smart Watch Fitness Tracker", price: 89.99, rating: 4.3, reviews_count: 892, image: "/images/product_2_smart_watch_fitness_tracker.jpg" },
+            { id: 3, name: "USB-C Fast Charging Cable 6ft", price: 12.99, rating: 4.7, reviews_count: 3421, image: "/images/product_3_usb-c_fast_charging_cable_6ft.jpg" },
+            { id: 4, name: "Portable Power Bank 20000mAh", price: 29.99, rating: 4.6, reviews_count: 2105, image: "/images/product_4_portable_power_bank_20000mah.jpg" },
+            { id: 5, name: "Mechanical Gaming Keyboard RGB", price: 79.99, rating: 4.8, reviews_count: 1567, image: "/images/product_5_mechanical_gaming_keyboard_rgb.jpg" },
+            { id: 6, name: "Wireless Mouse with Precision Tracking", price: 24.99, rating: 4.4, reviews_count: 978, image: "/images/product_6_wireless_mouse_with_precision_tracking.jpg" },
+            { id: 7, name: "Phone Case with Card Holder", price: 15.99, rating: 4.2, reviews_count: 654, image: "/images/product_7_phone_case_with_card_holder.jpg" },
+            { id: 8, name: "Laptop Stand Aluminum Adjustable", price: 34.99, rating: 4.7, reviews_count: 1893, image: "/images/product_8_laptop_stand_aluminum_adjustable.jpg" },
+            { id: 9, name: "LED Desk Lamp with USB Port", price: 22.99, rating: 4.5, reviews_count: 1124, image: "/images/product_9_led_desk_lamp_with_usb_port.jpg" },
+            { id: 10, name: "Noise Cancelling Earbuds Pro", price: 129.99, rating: 4.9, reviews_count: 2876, image: "/images/product_10_noise_cancelling_earbuds_pro.jpg" },
+            { id: 11, name: "Portable SSD 1TB External Drive", price: 99.99, rating: 4.8, reviews_count: 1456, image: "/images/product_11_portable_ssd_1tb_external_drive.jpg" },
+            { id: 12, name: "Webcam 1080p HD with Microphone", price: 39.99, rating: 4.3, reviews_count: 823, image: "/images/product_12_webcam_1080p_hd_with_microphone.jpg" },
+            { id: 13, name: "Gaming Chair Ergonomic", price: 199.99, rating: 4.6, reviews_count: 745, image: "/images/product_13_gaming_chair_ergonomic.jpg" },
+            { id: 14, name: "Bluetooth Speaker Waterproof", price: 45.99, rating: 4.4, reviews_count: 1632, image: "/images/product_14_bluetooth_speaker_waterproof.jpg" },
+            { id: 15, name: "Screen Protector Tempered Glass", price: 9.99, rating: 4.6, reviews_count: 2345, image: "/images/product_15_screen_protector_tempered_glass.jpg" },
+            { id: 16, name: "Phone Tripod with Remote", price: 18.99, rating: 4.5, reviews_count: 987, image: "/images/product_16_phone_tripod_with_remote.jpg" },
+            { id: 17, name: "Monitor Mount Dual Arm", price: 54.99, rating: 4.7, reviews_count: 1234, image: "/images/product_17_monitor_mount_dual_arm.jpg" },
+            { id: 18, name: "Cable Management Kit", price: 14.99, rating: 4.2, reviews_count: 567, image: "/images/product_18_cable_management_kit.jpg" },
+            { id: 19, name: "Wireless Charging Pad 15W", price: 19.99, rating: 4.5, reviews_count: 1876, image: "/images/product_19_wireless_charging_pad_15w.jpg" },
+            { id: 20, name: "USB Hub 7-Port with Power", price: 27.99, rating: 4.4, reviews_count: 934, image: "/images/product_20_usb_hub_7-port_with_power.jpg" },
+            // Additional products for a fuller catalog
+            { id: 21, name: "4K Ultra HD Monitor 27 inch", price: 279.99, rating: 4.7, reviews_count: 1543, image: "/images/product_21_4k_ultra_hd_monitor_27_inch.jpg" },
+            { id: 22, name: "Ergonomic Office Chair Pro", price: 249.99, rating: 4.5, reviews_count: 892, image: "/images/product_22_ergonomic_office_chair_pro.jpg" },
+            { id: 23, name: "Standing Desk Converter", price: 159.99, rating: 4.6, reviews_count: 1234, image: "/images/product_23_standing_desk_converter.jpg" },
+            { id: 24, name: "Wireless Keyboard and Mouse Combo", price: 44.99, rating: 4.4, reviews_count: 2109, image: "/images/product_24_wireless_keyboard_and_mouse_combo.jpg" },
+            { id: 25, name: "Smart Thermostat WiFi Enabled", price: 129.99, rating: 4.8, reviews_count: 987, image: "/images/product_25_smart_thermostat_wifi_enabled.jpg" },
+            { id: 26, name: "Air Purifier HEPA Filter", price: 149.99, rating: 4.7, reviews_count: 1678, image: "/images/product_26_air_purifier_hepa_filter.jpg" },
+            { id: 27, name: "Electric Toothbrush Rechargeable", price: 39.99, rating: 4.5, reviews_count: 3421, image: "/images/product_27_electric_toothbrush_rechargeable.jpg" },
+            { id: 28, name: "Coffee Maker Programmable 12-Cup", price: 59.99, rating: 4.6, reviews_count: 2456, image: "/images/product_28_coffee_maker_programmable_12-cup.jpg" },
+            { id: 29, name: "Yoga Mat Non-Slip Extra Thick", price: 24.99, rating: 4.7, reviews_count: 3245, image: "/images/product_29_yoga_mat_non-slip_extra_thick.jpg" },
+            { id: 30, name: "Resistance Bands Set of 5", price: 16.99, rating: 4.5, reviews_count: 1890, image: "/images/product_30_resistance_bands_set_of_5.jpg" },
+            { id: 31, name: "Dumbbells Adjustable Pair", price: 89.99, rating: 4.8, reviews_count: 1567, image: "/images/product_31_dumbbells_adjustable_pair.jpg" },
+            { id: 32, name: "Water Bottle Insulated 32oz", price: 19.99, rating: 4.6, reviews_count: 4123, image: "/images/product_32_water_bottle_insulated_32oz.jpg" },
+            { id: 33, name: "Backpack Laptop Travel Business", price: 49.99, rating: 4.5, reviews_count: 2789, image: "/images/product_33_backpack_laptop_travel_business.jpg" },
+            { id: 34, name: "Sunglasses Polarized UV Protection", price: 29.99, rating: 4.4, reviews_count: 1543, image: "/images/product_34_sunglasses_polarized_uv_protection.jpg" },
+            { id: 35, name: "Digital Picture Frame 10 inch", price: 79.99, rating: 4.3, reviews_count: 876, image: "/images/product_35_digital_picture_frame_10_inch.jpg" },
+            { id: 36, name: "Smart Light Bulbs RGB 4-Pack", price: 34.99, rating: 4.7, reviews_count: 2345, image: "/images/product_36_smart_light_bulbs_rgb_4-pack.jpg" },
+            { id: 37, name: "Ring Light for Video 10 inch", price: 32.99, rating: 4.6, reviews_count: 1987, image: "/images/product_37_ring_light_for_video_10_inch.jpg" },
+            { id: 38, name: "Microphone USB Condenser", price: 59.99, rating: 4.8, reviews_count: 1456, image: "/images/product_38_microphone_usb_condenser.jpg" },
+            { id: 39, name: "Desk Organizer Bamboo", price: 22.99, rating: 4.5, reviews_count: 1234, image: "/images/product_39_desk_organizer_bamboo.jpg" },
+            { id: 40, name: "Wall Clock Modern Silent", price: 27.99, rating: 4.4, reviews_count: 987, image: "/images/product_40_wall_clock_modern_silent.jpg" },
+            { id: 41, name: "Portable Blender Personal Size", price: 35.99, rating: 4.7, reviews_count: 2567, image: "/images/product_41_portable_blender_personal_size.jpg" },
+            { id: 42, name: "Electric Kettle Fast Boil", price: 29.99, rating: 4.6, reviews_count: 3890, image: "/images/product_42_electric_kettle_fast_boil.jpg" },
+            { id: 43, name: "Food Storage Containers Set", price: 24.99, rating: 4.5, reviews_count: 2134, image: "/images/product_43_food_storage_containers_set.jpg" },
+            { id: 44, name: "Knife Set Professional 15-Piece", price: 69.99, rating: 4.8, reviews_count: 1678, image: "/images/product_44_knife_set_professional_15-piece.jpg" },
+            { id: 45, name: "Cutting Board Set Bamboo", price: 19.99, rating: 4.6, reviews_count: 1987, image: "/images/product_45_cutting_board_set_bamboo.jpg" },
+            { id: 46, name: "Cast Iron Skillet 12 inch", price: 39.99, rating: 4.9, reviews_count: 2456, image: "/images/product_46_cast_iron_skillet_12_inch.jpg" },
+            { id: 47, name: "Kitchen Scale Digital", price: 16.99, rating: 4.5, reviews_count: 1543, image: "/images/product_47_kitchen_scale_digital.jpg" },
+            { id: 48, name: "Instant Pot 6 Quart", price: 89.99, rating: 4.8, reviews_count: 5678, image: "/images/product_48_instant_pot_6_quart.jpg" },
+            { id: 49, name: "Air Fryer 5.8 Quart", price: 79.99, rating: 4.7, reviews_count: 4321, image: "/images/product_49_air_fryer_58_quart.jpg" },
+            { id: 50, name: "Vacuum Cleaner Cordless Stick", price: 149.99, rating: 4.6, reviews_count: 2890, image: "/images/product_50_vacuum_cleaner_cordless_stick.jpg" },
+            { id: 51, name: "Robot Vacuum with Mapping", price: 299.99, rating: 4.7, reviews_count: 1987, image: "/images/product_51_robot_vacuum_with_mapping.jpg" },
+            { id: 52, name: "Steam Mop Electric", price: 59.99, rating: 4.5, reviews_count: 1456, image: "/images/product_52_steam_mop_electric.jpg" },
+            { id: 53, name: "Humidifier Ultrasonic Cool Mist", price: 44.99, rating: 4.6, reviews_count: 2345, image: "/images/product_53_humidifier_ultrasonic_cool_mist.jpg" },
+            { id: 54, name: "Fan Tower Oscillating", price: 54.99, rating: 4.4, reviews_count: 1678, image: "/images/product_54_fan_tower_oscillating.jpg" },
+            { id: 55, name: "Space Heater Ceramic Portable", price: 39.99, rating: 4.5, reviews_count: 2109, image: "/images/product_55_space_heater_ceramic_portable.jpg" },
+            { id: 56, name: "Weighted Blanket 15 lbs", price: 59.99, rating: 4.8, reviews_count: 3456, image: "/images/product_56_weighted_blanket_15_lbs.jpg" },
+            { id: 57, name: "Pillow Memory Foam Cooling", price: 34.99, rating: 4.7, reviews_count: 2789, image: "/images/product_57_pillow_memory_foam_cooling.jpg" },
+            { id: 58, name: "Mattress Topper Queen Gel", price: 89.99, rating: 4.6, reviews_count: 1890, image: "/images/product_58_mattress_topper_queen_gel.jpg" },
+            { id: 59, name: "Blackout Curtains 2 Panels", price: 29.99, rating: 4.5, reviews_count: 2567, image: "/images/product_59_blackout_curtains_2_panels.jpg" },
+            { id: 60, name: "Area Rug Modern 5x7", price: 79.99, rating: 4.4, reviews_count: 987, image: "/images/product_60_area_rug_modern_5x7.jpg" }
+        ];
+
+        // Update cart count
+        function updateCartCount(animate = false) {
+            fetch('/api/cart?session_id=default')
+                .then(res => res.json())
+                .then(data => {
+                    // Calculate total count from items array
+                    const count = data.items ? data.items.reduce((sum, item) => sum + item.quantity, 0) : 0;
+                    const cartElement = document.getElementById('cartCount');
+                    cartElement.textContent = count;
+
+                    if (animate) {
+                        cartElement.classList.add('updated');
+                        setTimeout(() => cartElement.classList.remove('updated'), 600);
+                    }
+                })
+                .catch(err => console.error('Error updating cart count:', err));
+        }
+
+        // Render product card
+        function renderProductCard(product, size = 'normal') {
+            const imageClass = size === 'small' ? 'product-image-small' : size === 'large' ? 'product-image-large' : 'product-image';
+            const stars = '★'.repeat(Math.floor(product.rating || 0));
+            const ratingText = product.rating ? `${product.rating.toFixed(1)}` : '';
+            const reviewsCount = product.reviews_count || 0;
+            
+            return `
+                <div class="product-card" style="position: relative;">
+                    <div style="position: relative; overflow: hidden; border-radius: 8px;">
+                        <img src="${product.image}" alt="${product.name}" class="product-image ${imageClass}" onclick="window.location.href='/product/${product.id}'" style="cursor: pointer;">
+                        <button onclick="event.stopPropagation(); addToCart(${product.id});" 
+                                style="position: absolute; bottom: 8px; right: 8px; background: linear-gradient(135deg, var(--amazon-orange), #FFB847); color: var(--amazon-dark); border: none; padding: 0.5rem 1rem; border-radius: 20px; cursor: pointer; font-weight: 600; opacity: 0; transition: all 0.3s ease; font-size: 0.75rem; box-shadow: 0 4px 12px rgba(255, 153, 0, 0.4);"
+                                onmouseover="this.style.opacity='1'; this.style.transform='scale(1.05)';"
+                                onmouseout="this.style.opacity='0'; this.style.transform='scale(1)';"
+                                class="quick-add-btn">
+                            <i class="bi bi-cart-plus"></i> Add
+                        </button>
+                    </div>
+                    <a href="/product/${product.id}" class="product-title" onclick="event.stopPropagation();">${product.name}</a>
+                    ${product.rating ? `<div class="product-rating">
+                        ${stars}${ratingText} <span class="text-muted">(${reviewsCount})</span>
+                    </div>` : ''}
+                    <div class="product-price">$${product.price.toFixed(2)}</div>
+                </div>
+            `;
+        }
+
+        // Load products by price range
+        function loadProductsByPrice(maxPrice, containerId) {
+            const products = mockProducts
+                .filter(p => p.price <= maxPrice)
+                .sort((a, b) => b.price - a.price)
+                .slice(0, 4);
+            const container = document.getElementById(containerId);
+            if (products.length > 0) {
+                container.innerHTML = products.map(p => renderProductCard(p, 'small')).join('');
+            } else {
+                container.innerHTML = '<div style="padding: 1rem; color: #666; font-size: 0.75rem;">No products found</div>';
+            }
+        }
+
+        // Load products for section
+        function loadSectionProducts(containerId, limit = 4, category = null) {
+            const shuffled = mockProducts.sort(() => 0.5 - Math.random());
+            const products = shuffled.slice(0, limit);
+            const container = document.getElementById(containerId);
+            container.innerHTML = products.map(p => renderProductCard(p)).join('');
+        }
+
+        // Load deals
+        function loadDeals() {
+            const products = mockProducts
+                .sort((a, b) => a.price - b.price)
+                .slice(0, 4);
+            const container = document.getElementById('dealsProducts');
+            container.innerHTML = products.map(p => renderProductCard(p, 'small')).join('');
+        }
+
+        // Add to cart
+        function addToCart(productId) {
+            fetch('/api/cart/add?session_id=default', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({product_id: productId, quantity: 1})
+            })
+            .then(res => res.json())
+            .then(data => {
+                updateCartCount(true);
+                console.log('Added to cart:', productId);
+
+                // Show a nice notification (non-blocking)
+                const notification = document.createElement('div');
+                notification.innerHTML = '<i class="bi bi-check-circle-fill"></i> Added to cart!';
+                notification.style.cssText = 'position: fixed; top: 80px; right: 20px; background: linear-gradient(135deg, #28a745, #20c997); color: white; padding: 1rem 1.5rem; border-radius: 12px; box-shadow: 0 8px 24px rgba(40, 167, 69, 0.5); z-index: 9999; font-weight: 600; animation: slideInRight 0.3s ease-out; display: flex; align-items: center; gap: 0.5rem;';
+                document.body.appendChild(notification);
+
+                setTimeout(() => {
+                    notification.style.animation = 'slideOutRight 0.3s ease-out';
+                    setTimeout(() => notification.remove(), 300);
+                }, 2000);
+            })
+            .catch(err => console.error('Error adding to cart:', err));
+        }
+        
+        // Add animations for notifications
+        const styleSheet = document.createElement('style');
+        styleSheet.textContent = `
+            @keyframes slideInRight {
+                from { transform: translateX(400px); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+            @keyframes slideOutRight {
+                from { transform: translateX(0); opacity: 1; }
+                to { transform: translateX(400px); opacity: 0; }
+            }
+        `;
+        document.head.appendChild(styleSheet);
+
+        // Search functionality
+        document.getElementById('searchBtn').addEventListener('click', function() {
+            const query = document.getElementById('searchInput').value;
+            if (query.trim()) {
+                window.location.href = `/search?q=${encodeURIComponent(query)}`;
+            }
+        });
+
+        document.getElementById('searchInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                document.getElementById('searchBtn').click();
+            }
+        });
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            updateCartCount();
+            
+            // Load price-based sections
+            loadProductsByPrice(10, 'under10Products');
+            loadProductsByPrice(25, 'under25Products');
+            loadProductsByPrice(50, 'under50Products');
+            loadDeals();
+            
+            // Load other sections with more products
+            loadSectionProducts('pickupProducts', 6);
+            loadSectionProducts('buyAgainProducts', 6);
+            loadSectionProducts('keepShoppingProducts', 6);
+            loadSectionProducts('continueDealsProducts', 6);
+            loadSectionProducts('categoriesProducts', 6);
+            loadSectionProducts('savedDealsProducts', 6);
+        });
+    </script>
+</body>
+</html>

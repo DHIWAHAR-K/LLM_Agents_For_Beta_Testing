@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Products - Scamazon</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    
+    <!-- Responsive Styles -->
+    <link rel="stylesheet" href="/static/styles.css">
+    
+    <style>
+        :root {
+            --amazon-orange: #FF9900;
+            --amazon-dark: #131921;
+            --amazon-light: #232F3E;
+        }
+
+        body {
+            background-color: #EAEDED;
+            font-family: Arial, sans-serif;
+        }
+
+        .amazon-header {
+            background-color: var(--amazon-dark);
+            color: white;
+            padding: 0.75rem 0;
+        }
+
+        .amazon-nav {
+            background-color: var(--amazon-light);
+            padding: 0.5rem 0;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: white;
+            text-decoration: none;
+        }
+
+        .cart-icon {
+            font-size: 2rem;
+            color: white;
+            text-decoration: none;
+            position: relative;
+        }
+
+        .cart-count {
+            position: absolute;
+            top: -5px;
+            right: -10px;
+            background-color: var(--amazon-orange);
+            color: var(--amazon-dark);
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: bold;
+        }
+
+        .breadcrumb {
+            background: transparent;
+            padding: 1rem 0;
+        }
+
+        .filter-sidebar {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .filter-section {
+            margin-bottom: 2rem;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 1rem;
+        }
+
+        .filter-section h5 {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            color: var(--amazon-dark);
+        }
+
+        .filter-checkbox {
+            margin-bottom: 0.5rem;
+        }
+
+        .products-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .product-card {
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            transition: all 0.3s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+        }
+
+        .product-image {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+        }
+
+        .product-body {
+            padding: 1.25rem;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .product-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--amazon-dark);
+            margin-bottom: 0.5rem;
+            text-decoration: none;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .product-rating {
+            color: var(--amazon-orange);
+            font-size: 0.9rem;
+        }
+
+        .product-price {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #B12704;
+            margin-top: auto;
+        }
+
+        .btn-add-cart {
+            background-color: var(--amazon-orange);
+            color: var(--amazon-dark);
+            border: none;
+            padding: 0.75rem;
+            border-radius: 4px;
+            font-weight: 600;
+            margin-top: 0.75rem;
+            width: 100%;
+        }
+
+        .pagination {
+            justify-content: center;
+            margin-top: 2rem;
+        }
+
+        .page-link {
+            color: var(--amazon-dark);
+        }
+
+        .page-link:hover {
+            background-color: var(--amazon-orange);
+            color: var(--amazon-dark);
+        }
+        
+        /* Responsive Enhancements */
+        @media (max-width: 768px) {
+            .filter-sidebar {
+                margin-bottom: 1rem;
+            }
+            
+            .products-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+            
+            .products-header h2 {
+                font-size: 1.5rem;
+            }
+            
+            .product-image {
+                height: 180px;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .filter-sidebar {
+                padding: 1rem;
+            }
+            
+            .product-card {
+                padding: 0.75rem;
+            }
+            
+            .product-image {
+                height: 150px;
+            }
+            
+            .product-title {
+                font-size: 0.9rem;
+            }
+            
+            .product-price {
+                font-size: 1.25rem;
+            }
+            
+            .btn-add-cart {
+                padding: 0.5rem;
+                font-size: 0.9rem;
+            }
+        }
+        
+        @media (min-width: 769px) and (max-width: 992px) {
+            .col-md-4 {
+                flex: 0 0 50%;
+                max-width: 50%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- HEADER -->
+    <div class="amazon-header">
+        <div class="container">
+            <div class="d-flex align-items-center justify-content-between">
+                <a href="/" class="logo">
+                    <i class="bi bi-cart4"></i> Scamazon
+                </a>
+                <div class="d-flex align-items-center gap-3" style="flex: 1; max-width: 600px; margin: 0 auto; padding: 0 20px;">
+                    <form class="d-flex w-100" id="searchForm" onsubmit="handleSearch(event)">
+                        <input type="text" id="searchInput" class="form-control me-2" placeholder="Search products..." name="search">
+                        <button class="btn btn-warning" type="submit">
+                            <i class="bi bi-search"></i>
+                        </button>
+                    </form>
+                </div>
+                <div class="d-flex align-items-center gap-3">
+                    <a href="/cart" class="cart-icon">
+                        <i class="bi bi-cart3"></i>
+                        <span class="cart-count" id="cartCount">0</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="amazon-nav">
+        <div class="container">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-0">
+                    <li class="breadcrumb-item"><a href="/">Home</a></li>
+                    <li class="breadcrumb-item active">Products</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <div class="container my-4">
+        <div class="row">
+            <!-- FILTER SIDEBAR -->
+            <div class="col-md-3">
+                <div class="filter-sidebar">
+                    <h4 class="mb-3">Filter Products</h4>
+                    
+                    <div class="filter-section">
+                        <h5>Category</h5>
+                        <div class="filter-checkbox">
+                            <input type="checkbox" id="cat-electronics" class="form-check-input" onchange="applyFilters()">
+                            <label class="form-check-label" for="cat-electronics">Electronics</label>
+                        </div>
+                        <div class="filter-checkbox">
+                            <input type="checkbox" id="cat-sports" class="form-check-input" onchange="applyFilters()">
+                            <label class="form-check-label" for="cat-sports">Sports</label>
+                        </div>
+                        <div class="filter-checkbox">
+                            <input type="checkbox" id="cat-home" class="form-check-input" onchange="applyFilters()">
+                            <label class="form-check-label" for="cat-home">Home</label>
+                        </div>
+                    </div>
+
+                    <div class="filter-section">
+                        <h5>Price Range</h5>
+                        <div class="mb-2">
+                            <input type="number" id="minPrice" class="form-control form-control-sm" placeholder="Min" onchange="applyFilters()">
+                        </div>
+                        <div>
+                            <input type="number" id="maxPrice" class="form-control form-control-sm" placeholder="Max" onchange="applyFilters()">
+                        </div>
+                    </div>
+
+                    <div class="filter-section">
+                        <h5>Rating</h5>
+                        <div class="filter-checkbox">
+                            <input type="checkbox" id="rating-4" class="form-check-input" onchange="applyFilters()">
+                            <label class="form-check-label" for="rating-4">4+ Stars</label>
+                        </div>
+                        <div class="filter-checkbox">
+                            <input type="checkbox" id="rating-3" class="form-check-input" onchange="applyFilters()">
+                            <label class="form-check-label" for="rating-3">3+ Stars</label>
+                        </div>
+                    </div>
+
+                    <button class="btn btn-outline-secondary w-100" onclick="clearFilters()">Clear Filters</button>
+                </div>
+            </div>
+
+            <!-- PRODUCTS GRID -->
+            <div class="col-md-9">
+                <div class="products-header">
+                    <h2 id="productsTitle">All Products</h2>
+                    <div>
+                        <label>Sort by:</label>
+                        <select id="sortSelect" class="form-select form-select-sm d-inline-block" style="width: auto;" onchange="applyFilters()">
+                            <option value="name">Name</option>
+                            <option value="price_asc">Price: Low to High</option>
+                            <option value="price_desc">Price: High to Low</option>
+                            <option value="rating">Rating</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="row g-4" id="productsGrid">
+                    <div class="col-12 text-center py-5">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </div>
+                </div>
+
+                <nav aria-label="Products pagination">
+                    <ul class="pagination" id="pagination">
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let currentPage = 1;
+        let currentCategory = new URLSearchParams(window.location.search).get('category') || '';
+        let currentSort = 'name';
+
+        function updateCartCount() {
+            fetch('/api/cart?session_id=default')
+                .then(res => res.json())
+                .then(data => {
+                    // Calculate total count from items array
+                    const count = data.items ? data.items.reduce((sum, item) => sum + item.quantity, 0) : 0;
+                    document.getElementById('cartCount').textContent = count;
+                })
+                .catch(err => console.error('Error updating cart count:', err));
+        }
+
+        function applyFilters() {
+            const category = getSelectedCategory();
+            const minPrice = document.getElementById('minPrice').value;
+            const maxPrice = document.getElementById('maxPrice').value;
+            const sort = document.getElementById('sortSelect').value;
+            
+            currentCategory = category;
+            currentSort = sort;
+            currentPage = 1;
+            loadProducts();
+        }
+
+        function getSelectedCategory() {
+            const electronics = document.getElementById('cat-electronics').checked;
+            const sports = document.getElementById('cat-sports').checked;
+            const home = document.getElementById('cat-home').checked;
+            
+            if (electronics && !sports && !home) return 'Electronics';
+            if (!electronics && sports && !home) return 'Sports';
+            if (!electronics && !sports && home) return 'Home';
+            return '';
+        }
+
+        function clearFilters() {
+            document.getElementById('cat-electronics').checked = false;
+            document.getElementById('cat-sports').checked = false;
+            document.getElementById('cat-home').checked = false;
+            document.getElementById('minPrice').value = '';
+            document.getElementById('maxPrice').value = '';
+            document.getElementById('sortSelect').value = 'name';
+            currentCategory = '';
+            currentPage = 1;
+            loadProducts();
+        }
+
+        function loadProducts() {
+            const params = new URLSearchParams({
+                page: currentPage,
+                limit: 12,
+                sort: currentSort
+            });
+
+            if (currentCategory) params.append('category', currentCategory);
+            if (document.getElementById('minPrice').value) params.append('min_price', document.getElementById('minPrice').value);
+            if (document.getElementById('maxPrice').value) params.append('max_price', document.getElementById('maxPrice').value);
+
+            fetch(`/api/products?${params}`)
+                .then(res => res.json())
+                .then(data => {
+                    displayProducts(data.products);
+                    displayPagination(data.page, data.pages);
+                    document.getElementById('productsTitle').textContent = 
+                        currentCategory ? `${currentCategory} Products` : 'All Products';
+                })
+                .catch(err => {
+                    console.error('Error loading products:', err);
+                    document.getElementById('productsGrid').innerHTML = 
+                        '<div class="col-12 text-center text-danger">Error loading products</div>';
+                });
+        }
+
+        function displayProducts(products) {
+            const container = document.getElementById('productsGrid');
+            if (products.length === 0) {
+                container.innerHTML = '<div class="col-12 text-center py-5"><h4>No products found</h4></div>';
+                return;
+            }
+
+            container.innerHTML = products.map(product => `
+                <div class="col-md-4">
+                    <div class="product-card">
+                        <img src="${product.image}" alt="${product.name}" class="product-image">
+                        <div class="product-body">
+                            <a href="/product/${product.id}" class="product-title">${product.name}</a>
+                            <div class="product-rating">
+                                ${'<i class="bi bi-star-fill"></i>'.repeat(Math.floor(product.rating || 0))}
+                                ${product.rating ? product.rating.toFixed(1) : '0.0'}
+                                <span class="text-muted">(${product.reviews_count || 0})</span>
+                            </div>
+                            <div class="product-price">$${product.price.toFixed(2)}</div>
+                            <button class="btn-add-cart add-to-cart" onclick="addToCart('${product.id}')">
+                                <i class="bi bi-cart-plus"></i> Add to Cart
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function displayPagination(page, totalPages) {
+            const container = document.getElementById('pagination');
+            if (totalPages <= 1) {
+                container.innerHTML = '';
+                return;
+            }
+
+            let html = '';
+            if (page > 1) {
+                html += `<li class="page-item"><a class="page-link" href="#" onclick="changePage(${page - 1})">Previous</a></li>`;
+            }
+            
+            for (let i = 1; i <= totalPages; i++) {
+                if (i === 1 || i === totalPages || (i >= page - 2 && i <= page + 2)) {
+                    html += `<li class="page-item ${i === page ? 'active' : ''}">
+                        <a class="page-link" href="#" onclick="changePage(${i})">${i}</a>
+                    </li>`;
+                } else if (i === page - 3 || i === page + 3) {
+                    html += `<li class="page-item disabled"><span class="page-link">...</span></li>`;
+                }
+            }
+
+            if (page < totalPages) {
+                html += `<li class="page-item"><a class="page-link" href="#" onclick="changePage(${page + 1})">Next</a></li>`;
+            }
+
+            container.innerHTML = html;
+        }
+
+        function changePage(page) {
+            currentPage = page;
+            loadProducts();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function handleSearch(event) {
+            event.preventDefault();
+            const searchTerm = document.getElementById('searchInput').value;
+            // For now, just filter products client-side
+            // In a real app, this would make an API call
+            applyFilters();
+        }
+
+        function addToCart(productId) {
+            fetch('/api/cart/add?session_id=default', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({product_id: productId, quantity: 1})
+            })
+            .then(res => res.json())
+            .then(data => {
+                updateCartCount();
+                // Visual feedback without blocking alert
+                console.log('Added to cart:', productId);
+            })
+            .catch(err => console.error('Error adding to cart:', err));
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            updateCartCount();
+            if (currentCategory) {
+                document.getElementById(`cat-${currentCategory.toLowerCase()}`).checked = true;
+            }
+            loadProducts();
+        });
+    </script>
+</body>
+</html>
+

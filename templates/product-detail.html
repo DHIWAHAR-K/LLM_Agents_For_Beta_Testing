@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Details - Scamazon</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    
+    <!-- Responsive Styles -->
+    <link rel="stylesheet" href="/static/styles.css">
+    
+    <style>
+        :root {
+            --amazon-orange: #FF9900;
+            --amazon-dark: #131921;
+        }
+
+        body {
+            background-color: #EAEDED;
+        }
+
+        .amazon-header {
+            background-color: var(--amazon-dark);
+            color: white;
+            padding: 0.75rem 0;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: white;
+            text-decoration: none;
+        }
+
+        .cart-icon {
+            font-size: 2rem;
+            color: white;
+            text-decoration: none;
+            position: relative;
+        }
+
+        .cart-count {
+            position: absolute;
+            top: -5px;
+            right: -10px;
+            background-color: var(--amazon-orange);
+            color: var(--amazon-dark);
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: bold;
+        }
+
+        .product-main {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+        }
+
+        .product-image-main {
+            width: 100%;
+            max-width: 500px;
+            height: 500px;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+
+        .product-title {
+            font-size: 1.75rem;
+            font-weight: 600;
+            color: var(--amazon-dark);
+            margin-bottom: 1rem;
+        }
+
+        .product-rating {
+            color: var(--amazon-orange);
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+        }
+
+        .product-price {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #B12704;
+            margin-bottom: 1rem;
+        }
+
+        .product-description {
+            color: #555;
+            line-height: 1.6;
+            margin-bottom: 2rem;
+        }
+
+        .specs-table {
+            width: 100%;
+        }
+
+        .specs-table td {
+            padding: 0.5rem;
+            border-bottom: 1px solid #eee;
+        }
+
+        .specs-table td:first-child {
+            font-weight: 600;
+            width: 40%;
+        }
+
+        .btn-add-cart {
+            background-color: var(--amazon-orange);
+            color: var(--amazon-dark);
+            border: none;
+            padding: 1rem 2rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-radius: 4px;
+            width: 100%;
+            margin-bottom: 1rem;
+        }
+
+        .btn-buy-now {
+            background-color: #FFA500;
+            color: var(--amazon-dark);
+            border: none;
+            padding: 1rem 2rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-radius: 4px;
+            width: 100%;
+        }
+
+        .reviews-section {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+        }
+
+        .review-card {
+            border-bottom: 1px solid #eee;
+            padding: 1.5rem 0;
+        }
+
+        .related-products {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+        }
+
+        .related-product-card {
+            text-align: center;
+            padding: 1rem;
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+
+        .related-product-card:hover {
+            background-color: #f5f5f5;
+        }
+
+        .related-product-image {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 4px;
+            margin-bottom: 0.5rem;
+        }
+        
+        /* Responsive Enhancements */
+        @media (max-width: 768px) {
+            .product-main {
+                padding: 1rem;
+            }
+            
+            .product-image-main {
+                max-width: 100%;
+                height: auto;
+                margin-bottom: 1.5rem;
+            }
+            
+            .product-title {
+                font-size: 1.4rem;
+            }
+            
+            .product-price {
+                font-size: 1.5rem;
+            }
+            
+            .reviews-section,
+            .related-products {
+                padding: 1rem;
+            }
+            
+            .related-product-card {
+                padding: 0.5rem;
+            }
+            
+            .col-md-3 {
+                flex: 0 0 50%;
+                max-width: 50%;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .product-main {
+                padding: 0.75rem;
+            }
+            
+            .product-title {
+                font-size: 1.2rem;
+            }
+            
+            .product-price {
+                font-size: 1.3rem;
+            }
+            
+            .product-image-main {
+                height: auto;
+                max-height: 300px;
+            }
+            
+            .btn-add-cart,
+            .btn-buy-now {
+                padding: 0.75rem 1rem;
+                font-size: 1rem;
+            }
+            
+            .specs-table td {
+                font-size: 0.85rem;
+                padding: 0.4rem;
+            }
+            
+            .review-card {
+                padding: 1rem 0;
+            }
+            
+            .col-md-3 {
+                flex: 0 0 100%;
+                max-width: 100%;
+            }
+            
+            .related-product-image {
+                height: 120px;
+            }
+            
+            h1, h2, h3, h4, h5 {
+                word-wrap: break-word;
+            }
+        }
+        
+        @media (min-width: 769px) and (max-width: 992px) {
+            .col-md-6 {
+                flex: 0 0 100%;
+                max-width: 100%;
+            }
+            
+            .product-image-main {
+                margin: 0 auto 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- HEADER -->
+    <div class="amazon-header">
+        <div class="container">
+            <div class="d-flex align-items-center justify-content-between">
+                <a href="/" class="logo">
+                    <i class="bi bi-cart4"></i> Scamazon
+                </a>
+                <a href="/cart" class="cart-icon">
+                    <i class="bi bi-cart3"></i>
+                    <span class="cart-count" id="cartCount">0</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="container my-4">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="/">Home</a></li>
+                <li class="breadcrumb-item"><a href="/products">Products</a></li>
+                <li class="breadcrumb-item active" id="breadcrumbProduct">Product</li>
+            </ol>
+        </nav>
+
+        <div class="product-main" id="productMain">
+            <div class="row">
+                <div class="col-md-6 text-center">
+                    <img id="productImage" src="" alt="Product" class="product-image-main">
+                </div>
+                <div class="col-md-6">
+                    <h1 class="product-title" id="productTitle"></h1>
+                    <div class="product-rating" id="productRating"></div>
+                    <div class="product-price" id="productPrice"></div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Quantity:</label>
+                        <input type="number" id="quantityInput" class="form-control" value="1" min="1" max="10" style="width: 100px;">
+                    </div>
+
+                    <button class="btn-add-cart add-to-cart" onclick="addToCart()">
+                        <i class="bi bi-cart-plus"></i> Add to Cart
+                    </button>
+                    <button class="btn-buy-now" onclick="buyNow()">
+                        Buy Now
+                    </button>
+
+                    <div class="mt-4">
+                        <h5>Product Details</h5>
+                        <table class="specs-table">
+                            <tbody id="specsTable"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row mt-4">
+                <div class="col-12">
+                    <h5>Description</h5>
+                    <p class="product-description" id="productDescription"></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- REVIEWS -->
+        <div class="reviews-section">
+            <h4 class="mb-3">Customer Reviews</h4>
+            <div id="reviewsContainer"></div>
+            
+            <div class="mt-4">
+                <h5>Write a Review</h5>
+                <form id="reviewForm">
+                    <div class="mb-3">
+                        <label class="form-label">Rating</label>
+                        <select id="reviewRating" class="form-select" required>
+                            <option value="">Select rating</option>
+                            <option value="5">5 Stars</option>
+                            <option value="4">4 Stars</option>
+                            <option value="3">3 Stars</option>
+                            <option value="2">2 Stars</option>
+                            <option value="1">1 Star</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Title</label>
+                        <input type="text" id="reviewTitle" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Comment</label>
+                        <textarea id="reviewComment" class="form-control" rows="4" required></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Your Name</label>
+                        <input type="text" id="reviewerName" class="form-control" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Submit Review</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- RELATED PRODUCTS -->
+        <div class="related-products">
+            <h4 class="mb-3">Related Products</h4>
+            <div class="row g-4" id="relatedProducts"></div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const productId = window.location.pathname.split('/').pop();
+        let productData = null;
+
+        function updateCartCount() {
+            fetch('/api/cart?session_id=default')
+                .then(res => res.json())
+                .then(data => {
+                    // Calculate total count from items array
+                    const count = data.items ? data.items.reduce((sum, item) => sum + item.quantity, 0) : 0;
+                    document.getElementById('cartCount').textContent = count;
+                })
+                .catch(err => console.error('Error updating cart count:', err));
+        }
+
+        function loadProduct() {
+            fetch(`/api/products/${productId}`)
+                .then(res => res.json())
+                .then(data => {
+                    productData = data;
+                    displayProduct(data);
+                    loadReviews(data.id);
+                    loadRelatedProducts(data.category);
+                })
+                .catch(err => {
+                    console.error('Error loading product:', err);
+                    document.getElementById('productMain').innerHTML = 
+                        '<div class="text-center text-danger"><h4>Product not found</h4></div>';
+                });
+        }
+
+        function displayProduct(product) {
+            document.getElementById('productTitle').textContent = product.name;
+            document.getElementById('productImage').src = product.image;
+            document.getElementById('productPrice').textContent = `$${product.price.toFixed(2)}`;
+            document.getElementById('productDescription').textContent = product.description;
+            document.getElementById('breadcrumbProduct').textContent = product.name;
+
+            const rating = product.rating || 0;
+            document.getElementById('productRating').innerHTML = `
+                ${'<i class="bi bi-star-fill"></i>'.repeat(Math.floor(rating))}
+                ${rating.toFixed(1)} (${product.reviews_count || 0} reviews)
+            `;
+
+            if (product.specs && Object.keys(product.specs).length > 0) {
+                const specsTable = document.getElementById('specsTable');
+                specsTable.innerHTML = Object.entries(product.specs)
+                    .map(([key, value]) => `
+                        <tr>
+                            <td>${key}</td>
+                            <td>${value}</td>
+                        </tr>
+                    `).join('');
+            }
+        }
+
+        function loadReviews(productId) {
+            fetch(`/api/products/${productId}/reviews`)
+                .then(res => res.json())
+                .then(data => {
+                    const container = document.getElementById('reviewsContainer');
+                    if (data.reviews.length === 0) {
+                        container.innerHTML = '<p class="text-muted">No reviews yet. Be the first to review!</p>';
+                        return;
+                    }
+
+                    container.innerHTML = data.reviews.map(review => `
+                        <div class="review-card">
+                            <div class="d-flex justify-content-between mb-2">
+                                <strong>${review.reviewer_name}</strong>
+                                <div class="text-muted">${review.date}</div>
+                            </div>
+                            <div class="mb-2">
+                                ${'<i class="bi bi-star-fill text-warning"></i>'.repeat(review.rating)}
+                                ${'<i class="bi bi-star"></i>'.repeat(5 - review.rating)}
+                            </div>
+                            <h6>${review.title}</h6>
+                            <p>${review.comment}</p>
+                        </div>
+                    `).join('');
+                });
+        }
+
+        function loadRelatedProducts(category) {
+            fetch(`/api/products?category=${category}&limit=4`)
+                .then(res => res.json())
+                .then(data => {
+                    const container = document.getElementById('relatedProducts');
+                    const related = data.products.filter(p => p.id !== productId).slice(0, 4);
+                    
+                    if (related.length === 0) {
+                        container.innerHTML = '<div class="col-12 text-muted">No related products found</div>';
+                        return;
+                    }
+
+                    container.innerHTML = related.map(product => `
+                        <div class="col-md-3">
+                            <div class="related-product-card">
+                                <a href="/product/${product.id}">
+                                    <img src="${product.image}" alt="${product.name}" class="related-product-image">
+                                    <div class="product-title" style="font-size: 0.9rem;">${product.name}</div>
+                                    <div class="product-price" style="font-size: 1.2rem;">$${product.price.toFixed(2)}</div>
+                                </a>
+                            </div>
+                        </div>
+                    `).join('');
+                });
+        }
+
+        function addToCart() {
+            const quantity = parseInt(document.getElementById('quantityInput').value);
+            fetch('/api/cart/add?session_id=default', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({product_id: productId, quantity: quantity})
+            })
+            .then(res => res.json())
+            .then(data => {
+                updateCartCount();
+                console.log(`Added ${quantity} item(s) to cart:`, productId);
+            })
+            .catch(err => {
+                console.error('Error adding to cart:', err);
+            });
+        }
+
+        function buyNow() {
+            addToCart();
+            setTimeout(() => {
+                window.location.href = '/cart';
+            }, 500);
+        }
+
+        document.getElementById('reviewForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const review = {
+                rating: parseInt(document.getElementById('reviewRating').value),
+                title: document.getElementById('reviewTitle').value,
+                comment: document.getElementById('reviewComment').value,
+                reviewer_name: document.getElementById('reviewerName').value
+            };
+
+            fetch(`/api/products/${productId}/reviews`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(review)
+            })
+            .then(res => res.json())
+            .then(data => {
+                alert('Review submitted successfully!');
+                document.getElementById('reviewForm').reset();
+                loadProduct(); // Reload to show new review
+            })
+            .catch(err => {
+                console.error('Error submitting review:', err);
+                alert('Error submitting review');
+            });
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            updateCartCount();
+            loadProduct();
+        });
+    </script>
+</body>
+</html>
+

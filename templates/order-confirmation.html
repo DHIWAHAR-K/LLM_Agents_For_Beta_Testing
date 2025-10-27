@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Confirmation - Scamazon</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    
+    <!-- Responsive Styles -->
+    <link rel="stylesheet" href="/static/styles.css">
+    
+    <style>
+        :root {
+            --amazon-orange: #FF9900;
+            --amazon-dark: #131921;
+        }
+
+        body {
+            background-color: #EAEDED;
+        }
+
+        .amazon-header {
+            background-color: var(--amazon-dark);
+            color: white;
+            padding: 0.75rem 0;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: white;
+            text-decoration: none;
+        }
+
+        .confirmation-container {
+            background: white;
+            padding: 3rem;
+            border-radius: 8px;
+            margin: 2rem 0;
+            text-align: center;
+        }
+
+        .success-icon {
+            font-size: 4rem;
+            color: #28a745;
+            margin-bottom: 1rem;
+        }
+
+        .order-details {
+            background: #f8f9fa;
+            padding: 2rem;
+            border-radius: 8px;
+            margin: 2rem 0;
+            text-align: left;
+        }
+
+        .order-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 1rem 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .btn-primary-custom {
+            background-color: var(--amazon-orange);
+            color: var(--amazon-dark);
+            border: none;
+            padding: 1rem 2rem;
+            font-weight: 600;
+            border-radius: 4px;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        /* Responsive Enhancements */
+        @media (max-width: 768px) {
+            .confirmation-container {
+                padding: 2rem;
+            }
+            
+            .order-details {
+                padding: 1.5rem;
+            }
+            
+            .order-item {
+                flex-direction: column;
+                gap: 0.5rem;
+                text-align: center;
+            }
+            
+            .order-item .text-end {
+                text-align: center !important;
+            }
+            
+            .success-icon {
+                font-size: 3rem;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .confirmation-container {
+                padding: 1.5rem 1rem;
+            }
+            
+            .order-details {
+                padding: 1rem;
+            }
+            
+            .success-icon {
+                font-size: 2.5rem;
+            }
+            
+            h2 {
+                font-size: 1.5rem;
+            }
+            
+            .lead {
+                font-size: 1rem;
+            }
+            
+            .btn-primary-custom {
+                padding: 0.75rem 1.5rem;
+                font-size: 0.95rem;
+                display: block;
+                width: 100%;
+                margin-bottom: 0.5rem;
+            }
+            
+            .btn-outline-secondary {
+                display: block;
+                width: 100%;
+            }
+            
+            .order-item {
+                padding: 0.75rem 0;
+                font-size: 0.9rem;
+            }
+            
+            h4, h5 {
+                font-size: 1.2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="amazon-header">
+        <div class="container">
+            <div class="d-flex align-items-center justify-content-between">
+                <a href="/" class="logo">
+                    <i class="bi bi-cart4"></i> Scamazon
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="container my-4">
+        <div class="confirmation-container">
+            <div class="success-icon">
+                <i class="bi bi-check-circle-fill"></i>
+            </div>
+            <h2 class="mb-3">Order Confirmed!</h2>
+            <p class="lead mb-4">Thank you for your purchase. Your order has been placed successfully.</p>
+            
+            <div class="order-details" id="orderDetails">
+                <div class="text-center mb-3">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-4">
+                <a href="/products" class="btn-primary-custom me-2">Continue Shopping</a>
+                <a href="/account" class="btn btn-outline-secondary">View Order History</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const orderId = window.location.pathname.split('/').pop();
+
+        function loadOrderDetails() {
+            fetch(`/api/orders/${orderId}`)
+                .then(res => res.json())
+                .then(order => {
+                    const container = document.getElementById('orderDetails');
+                    container.innerHTML = `
+                        <h4 class="mb-3">Order #${order.order_id.slice(0, 8)}</h4>
+                        
+                        <div class="mb-3">
+                            <strong>Order Date:</strong> ${new Date(order.created_at).toLocaleDateString()}<br>
+                            <strong>Estimated Delivery:</strong> ${order.estimated_delivery}<br>
+                            <strong>Status:</strong> <span class="text-success">${order.status}</span>
+                        </div>
+
+                        <h5 class="mt-4 mb-3">Order Items</h5>
+                        ${order.items.map(item => `
+                            <div class="order-item">
+                                <div>
+                                    <strong>${item.product_name}</strong><br>
+                                    <span class="text-muted">Quantity: ${item.quantity}</span>
+                                </div>
+                                <div class="text-end">
+                                    <strong>$${item.subtotal.toFixed(2)}</strong>
+                                </div>
+                            </div>
+                        `).join('')}
+
+                        <div class="mt-4 pt-3 border-top">
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>Subtotal:</span>
+                                <span>$${order.subtotal.toFixed(2)}</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>Shipping:</span>
+                                <span>${order.shipping > 0 ? '$' + order.shipping.toFixed(2) : 'FREE'}</span>
+                            </div>
+                            <div class="d-flex justify-content-between mt-3 pt-3 border-top">
+                                <strong>Total:</strong>
+                                <strong style="font-size: 1.2rem;">$${order.total.toFixed(2)}</strong>
+                            </div>
+                        </div>
+
+                        <div class="mt-4 pt-3 border-top">
+                            <h5>Shipping Address</h5>
+                            <p class="mb-0">
+                                ${order.shipping_address.firstName} ${order.shipping_address.lastName}<br>
+                                ${order.shipping_address.address}<br>
+                                ${order.shipping_address.city}, ${order.shipping_address.zipCode}
+                            </p>
+                        </div>
+                    `;
+                })
+                .catch(err => {
+                    console.error('Error loading order:', err);
+                    document.getElementById('orderDetails').innerHTML = 
+                        '<div class="text-center text-danger">Error loading order details</div>';
+                });
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            loadOrderDetails();
+        });
+    </script>
+</body>
+</html>
+
