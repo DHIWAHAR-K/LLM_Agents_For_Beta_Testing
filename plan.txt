@@ -1,0 +1,579 @@
+LLM AGENTS AS SYNTHETIC BETA TESTERS - PROJECT PLAN
+====================================================
+
+PROJECT GOAL
+-----------
+Build and validate a multi-agent LLM testing framework that outperforms baseline approaches
+from research papers. Submit results to NeurIPS as a novel contribution demonstrating that
+committee-based multi-agent systems achieve superior bug detection, task completion, and
+regression testing compared to single-agent baselines.
+
+
+SYSTEM ARCHITECTURE
+------------------
+1. Multi-Agent Committee Framework
+   - 3-round voting protocol for consensus decision making
+   - Vision-enabled agents (GPT-4o, Gemini 2.5 Pro, Claude Opus)
+   - Browser automation via async Playwright
+   - Configurable committee sizes (1-4 agents)
+
+2. Application Under Test (AUT)
+   - FastAPI e-commerce website (Scamazon)
+   - Full shopping flow: browse, search, cart, checkout
+   - Intentional bugs for regression testing
+   - Security vulnerabilities for OWASP testing
+
+3. Experimental Infrastructure
+   - SQLite database tracking 15+ metrics per run
+   - Automated bug injection and regression detection
+   - Statistical analysis with significance testing
+   - Multi-provider LLM support (OpenAI, Google, Anthropic, xAI)
+
+
+EXPERIMENTS DESIGNED
+-------------------
+
+CORE EXPERIMENTS (Baseline Comparison):
+1A. Multi-Agent Committee Scaling
+    - Configurations: 1, 2, 3, 4 agents
+    - Scenarios: UI shopping, API shopping, security testing
+    - Runs per config: 5 (with different random seeds)
+    - Total: 60 runs
+    - Hypothesis: More agents → better consensus → fewer errors
+
+1B. Persona Behavioral Diversity
+    - Personas: online_shopper, power_user, adversarial_attacker
+    - Test if different personas find different bug types
+    - Validate persona-driven testing effectiveness
+
+1C. Vision-Enabled Testing Impact
+    - Compare: vision models vs. text-only models
+    - Hypothesis: Vision helps with UI element identification
+
+1D. Regression Detection
+    - Inject bugs, verify detection across versions
+    - Test multi-agent ability to catch regressions
+
+BENCHMARK VALIDATION EXPERIMENTS:
+2. OWASP Juice Shop Security Testing
+   - Compare against published security testing benchmarks
+   - Validate SQL injection, XSS, auth bypass detection
+
+3. WebShop Task Success
+   - Compare against WebShop research baseline scores
+   - Measure task completion rates vs. published results
+
+
+BUGS FIXED (CHRONOLOGICAL)
+--------------------------
+
+Session 1 - Core Infrastructure Issues:
+✅ Async/Sync Playwright conflict (CRITICAL)
+   - Problem: 59/60 runs failed with "use Async API inside asyncio loop"
+   - Fix: Complete async refactor of browser_adapter.py, multi_agent_runner.py, runner.py
+   - Files: app/browser_adapter.py, app/multi_agent_runner.py, experiments/runner.py
+
+✅ Model config validation error
+   - Problem: Expected single provider at top level, but config has providers per-model
+   - Fix: Updated config.py to validate each model has its own provider field
+   - File: config.py
+
+✅ URL duplication bug
+   - Problem: "http://localhost:8000http://localhost:8000/"
+   - Fix: Changed scenarios/ui_shopping_flow.yaml initial_url from full URL to relative path "/"
+   - File: scenarios/ui_shopping_flow.yaml:6
+
+✅ Database UNIQUE constraint errors
+   - Problem: Previous incomplete runs left records in database
+   - Fix: Clean database between runs with DELETE + VACUUM
+
+✅ CSS selector mismatch
+   - Problem: Agents looking for .add-to-cart but website used .btn-add-cart
+   - Fix: Added .add-to-cart class to all cart buttons
+   - Files: templates/products.html:440, templates/product-detail.html:309
+
+✅ Confidence scores parsing error
+   - Problem: Trying to parse JSON dict {"agent_1": 0.9} as float
+   - Fix: Added proper JSON parsing handling dict/list/scalar formats
+   - File: experiments/runner.py:250-262
+
+Session 2 - Cart Functionality Issues (ROOT CAUSE):
+✅ Blocking alert() dialogs
+   - Problem: alert('Added to cart!') blocks Playwright execution, prevents agents from proceeding
+   - Fix: Replaced all alerts with non-blocking console.log()
+   - Files: templates/products.html:494, templates/product-detail.html:496, templates/search.html:295
+
+✅ Incorrect cart count API parsing
+   - Problem: updateCartCount() reading data.count but API returns data.items[]
+   - Result: Cart count always showed "0" even when items added
+   - Fix: Calculate count from items array: data.items.reduce((sum, item) => sum + item.quantity, 0)
+   - Files: templates/products.html:357, templates/product-detail.html:386, templates/search.html:280, templates/index.html:1099
+
+✅ Homepage localStorage instead of API
+   - Problem: index.html stored cart in localStorage, never persisted to backend
+   - Fix: Changed to use /api/cart/add and /api/cart endpoints like other pages
+   - File: templates/index.html:1172-1193
+
+
+CURRENT STATUS
+-------------
+✅ All infrastructure bugs fixed
+✅ Cart functionality working end-to-end
+✅ Database cleaned and ready
+✅ AUT service running on http://localhost:8000
+⏳ Ready to run Experiment 1A (60 runs)
+
+
+NEXT STEPS
+----------
+1. Run Experiment 1A: Multi-Agent Committee Scaling
+   Command: cd experiments && python runner.py --config configs/experiment_1a_multi_agent_scaling.yaml
+
+2. Run remaining core experiments (1B, 1C, 1D)
+
+3. Run benchmark validation experiments (OWASP, WebShop)
+
+4. Generate statistical analyses:
+   - Significance tests (t-tests, ANOVA)
+   - Effect sizes (Cohen's d)
+   - Confidence intervals
+   - Agreement metrics (Fleiss' kappa)
+
+5. Generate visualizations:
+   - Bug detection rates by committee size
+   - Task completion rates vs. baselines
+   - Agent agreement heatmaps
+   - Regression detection accuracy
+
+6. Write NeurIPS paper with experimental results
+
+
+SUCCESS METRICS
+--------------
+- Bug detection rate: % of injected bugs found
+- Task completion rate: % of scenarios completed successfully
+- Consensus quality: Inter-agent agreement scores
+- Regression detection: % of regressions caught
+- Baseline comparison: Statistical significance vs. published results
+
+
+KEY FILES REFERENCE
+------------------
+Core Framework:
+- app/multi_agent_runner.py - Main session orchestrator (async)
+- app/browser_adapter.py - Playwright browser automation (async)
+- app/multi_agent_committee.py - Voting protocol implementation
+- app/llm_client.py - Multi-provider LLM interface
+
+Experiments:
+- experiments/runner.py - Experiment execution engine (async)
+- experiments/configs/*.yaml - Experiment configurations
+- experiments/bug_injector.py - Regression testing infrastructure
+- experiments/schema.sql - Database schema (15+ tables)
+
+Application Under Test:
+- aut_service.py - FastAPI e-commerce backend
+- templates/*.html - Frontend pages (cart functionality fixed)
+
+Configuration:
+- config/model_config.yaml - LLM model definitions
+- scenarios/*.yaml - Test scenarios
+- personas/*.yaml - Tester personas
+
+
+RESEARCH QUESTIONS TO ANSWER
+---------------------------
+1. Does committee size improve testing quality? (Exp 1A)
+2. Do diverse personas find different bug types? (Exp 1B)
+3. Does vision capability improve UI testing? (Exp 1C)
+4. Can multi-agent systems detect regressions? (Exp 1D)
+5. How do results compare to OWASP benchmarks? (Exp 2)
+6. How do results compare to WebShop baselines? (Exp 3)
+
+
+EXPECTED CONTRIBUTIONS
+---------------------
+1. Novel multi-agent committee voting protocol for testing
+2. Empirical validation against published baselines
+3. Vision-enabled testing methodology
+4. Persona-driven behavioral diversity approach
+5. Regression detection using multi-agent consensus
+
+
+NEURIPS PAPER STRUCTURE
+----------------------
+
+TARGET VENUE: NeurIPS 2025 (Conference on Neural Information Processing Systems)
+PAPER TYPE: Full research paper (8 pages + unlimited references/appendix)
+TRACK: Machine Learning Applications / Software Engineering
+
+PAPER OUTLINE:
+
+1. TITLE
+   "Multi-Agent LLM Committees for Autonomous Software Beta Testing"
+
+   Alternative titles:
+   - "Consensus-Driven Multi-Agent Systems for Automated Software Testing"
+   - "Vision-Enabled Multi-Agent LLMs as Synthetic Beta Testers"
+
+2. ABSTRACT (250 words)
+   Structure:
+   - Problem: Manual beta testing is expensive, single-agent LLMs make errors
+   - Solution: Multi-agent committee with 3-round voting protocol
+   - Methods: Vision-enabled agents, persona diversity, consensus voting
+   - Results: X% improvement over baselines in bug detection, Y% task completion
+   - Contributions: Novel voting protocol, empirical validation, open-source framework
+
+3. INTRODUCTION (1.5 pages)
+   - Motivation: Cost of manual testing, limitations of current automated approaches
+   - Research gap: Single-agent systems lack robustness, no consensus mechanisms
+   - Our approach: Multi-agent committees with voting reduce hallucinations
+   - Key insight: Diversity (models + personas) → better coverage
+   - Contributions list (5 bullet points)
+   - Paper roadmap
+
+4. RELATED WORK (1 page)
+   Subsections:
+   4.1 LLM-Based Software Testing
+       - WebShop (Yao et al., 2022) - baseline comparison
+       - OWASP automated testing - security benchmark
+       - Single-agent approaches and their limitations
+
+   4.2 Multi-Agent LLM Systems
+       - Constitutional AI and voting mechanisms
+       - Ensemble methods for LLMs
+       - Consensus protocols in distributed systems
+
+   4.3 Vision-Language Models for UI Testing
+       - GPT-4V, Gemini Pro Vision capabilities
+       - Screenshot-based testing approaches
+       - DOM vs. vision-based element identification
+
+   Positioning: "Unlike prior work using single agents, we introduce a committee
+   voting protocol that achieves consensus through multi-round deliberation."
+
+5. METHODOLOGY (2 pages)
+   5.1 Multi-Agent Committee Architecture
+       - System diagram showing agent interaction flow
+       - 3-round voting protocol detailed algorithm
+       - Consensus scoring function
+       - Safety validators (SQL injection, XSS detection)
+
+   5.2 Vision-Enabled Browser Automation
+       - Screenshot capture at each turn
+       - Visual element identification via vision models
+       - Playwright async integration
+       - Action types: navigate, click, type, scroll, report
+
+   5.3 Persona-Driven Testing
+       - Persona definitions: online_shopper, power_user, adversarial_attacker
+       - Initial state prompts and goal-oriented behavior
+       - Behavioral diversity metrics
+
+   5.4 Experimental Framework
+       - Application Under Test (AUT) specification
+       - Bug injection methodology for regression testing
+       - Metrics collection (15+ per run)
+       - Statistical analysis approach
+
+6. EXPERIMENTAL SETUP (0.75 pages)
+   6.1 Models and Configuration
+       - Committee members: GPT-4o, Gemini 2.5 Pro Flash, Claude Opus 4.5
+       - Committee sizes: 1, 2, 3, 4 agents
+       - Temperature, max tokens, vision settings
+
+   6.2 Test Scenarios
+       - UI-based shopping flow
+       - API-based shopping flow
+       - Security testing (adversarial)
+
+   6.3 Evaluation Metrics
+       - Primary: Bug detection rate, Task completion rate
+       - Secondary: Consensus quality (Fleiss' kappa), Latency, Cost
+       - Baseline comparisons: WebShop published scores, OWASP benchmarks
+
+   6.4 Implementation Details
+       - Python, FastAPI, Playwright, SQLite
+       - Total runs: 60 per experiment × 7 experiments = 420 runs
+       - Random seeds for reproducibility
+
+7. RESULTS (1.5 pages)
+   7.1 Multi-Agent Scaling (RQ1)
+       - Table: Bug detection rates by committee size (1-4 agents)
+       - Figure: Line plot showing scaling trends
+       - Statistical significance: ANOVA F-test, post-hoc Tukey HSD
+       - Key finding: "4-agent committees achieve 23% higher bug detection (p<0.01)"
+
+   7.2 Persona Diversity (RQ2)
+       - Table: Bug types found by each persona
+       - Venn diagram: Overlap of bugs found
+       - Finding: "Adversarial persona finds 3x more security bugs"
+
+   7.3 Vision Impact (RQ3)
+       - Table: Vision vs. text-only model comparison
+       - Finding: "Vision models identify UI elements with 89% accuracy vs. 67%"
+
+   7.4 Regression Detection (RQ4)
+       - Confusion matrix: True/False positives for bug detection
+       - Precision/Recall/F1 scores
+       - Finding: "Multi-agent achieves 0.91 F1 vs. 0.78 single-agent"
+
+   7.5 Baseline Comparisons
+       - WebShop: Our task completion X% vs. published Y%
+       - OWASP: Security vulnerability detection rates
+       - Cost-benefit analysis: Additional compute vs. bugs found
+
+8. DISCUSSION (0.5 pages)
+   - Why does voting help? → Reduces hallucinations through consensus
+   - When does it fail? → All agents can agree on wrong answer (groupthink)
+   - Optimal committee size: Diminishing returns after 4 agents
+   - Vision vs. text tradeoff: Higher cost but better UI accuracy
+   - Generalization: Tested on e-commerce, should extend to other domains
+
+9. LIMITATIONS (0.25 pages)
+   - Single application domain (e-commerce)
+   - Cost: 4-agent committees are 4x more expensive
+   - Latency: Multi-round voting adds overhead
+   - Vision models: Require screenshots, not suitable for all testing
+   - Ground truth: Some bugs subjective, manual validation needed
+
+10. CONCLUSION (0.5 pages)
+    - Summary: Multi-agent committees outperform single-agent baselines
+    - Key contributions recap
+    - Impact: Can reduce manual testing costs while improving coverage
+    - Future work: Adaptive committee sizes, real-world deployment studies
+    - Call to action: Open-source framework for reproducibility
+
+11. REFERENCES
+    Key papers to cite:
+    - WebShop (Yao et al., 2022) - baseline comparison
+    - ReAct (Yao et al., 2023) - reasoning + acting paradigm
+    - GPT-4V System Card (OpenAI, 2023) - vision capabilities
+    - Constitutional AI (Anthropic, 2022) - voting mechanisms
+    - Playwright (Microsoft) - browser automation
+    - Software testing surveys (IEEE, ACM journals)
+
+12. APPENDIX (Unlimited pages)
+    A. Full experimental configurations (YAML files)
+    B. Complete statistical analysis tables
+    C. Additional ablation studies
+    D. Qualitative examples: Screenshots with agent decisions
+    E. Reproducibility checklist
+    F. Code availability: GitHub repository link
+    G. Compute resources: GPU hours, API costs breakdown
+
+
+WRITING STRATEGY
+----------------
+
+Phase 1: Results First (Week 1)
+- Run all 7 experiments
+- Generate all statistical analyses
+- Create all figures and tables
+- Write Results section with actual numbers
+
+Phase 2: Methods & Experiments (Week 2)
+- Write Methodology section (architecture, algorithms)
+- Write Experimental Setup section
+- Create system architecture diagrams
+- Document implementation details
+
+Phase 3: Context & Discussion (Week 3)
+- Write Introduction with actual results to highlight
+- Write Related Work positioning our contributions
+- Write Discussion interpreting results
+- Write Limitations honestly
+
+Phase 4: Polish & Submit (Week 4)
+- Write Abstract (last, summarizing everything)
+- Create compelling figures
+- Proofread for clarity and conciseness
+- Check NeurIPS formatting requirements
+- Submit to arXiv for early feedback
+- Submit to NeurIPS official portal
+
+
+FIGURES & TABLES PLANNED
+------------------------
+
+Figure 1: System Architecture Diagram
+- Multi-agent committee with voting flow
+- Browser automation pipeline
+- Metrics collection system
+
+Figure 2: 3-Round Voting Protocol Algorithm
+- Flowchart showing Round 1 (proposals), Round 2 (discussion), Round 3 (consensus)
+- Example with actual agent responses
+
+Figure 3: Bug Detection Rate vs. Committee Size
+- Line plot with error bars
+- X-axis: Number of agents (1-4)
+- Y-axis: Bug detection rate (%)
+- Statistical significance annotations
+
+Figure 4: Agent Agreement Heatmap
+- Shows consensus across different scenarios
+- Color-coded by agreement strength
+
+Figure 5: Baseline Comparison Bar Charts
+- WebShop task completion: Ours vs. Published
+- OWASP security detection: Ours vs. Baselines
+
+Table 1: Model Configurations
+- Committee members, parameters, costs per run
+
+Table 2: Experimental Results Summary
+- All metrics across all experiments
+- Mean, std dev, p-values
+
+Table 3: Persona-Specific Bug Detection
+- Bugs found by each persona type
+- Unique vs. overlapping bugs
+
+Table 4: Ablation Study Results
+- Vision vs. no vision
+- Different voting strategies
+- Committee size variations
+
+
+STATISTICAL ANALYSIS DETAILS
+---------------------------
+
+Primary Tests:
+1. ANOVA: Test if committee size affects bug detection (p<0.05 threshold)
+2. Post-hoc Tukey HSD: Pairwise comparisons between committee sizes
+3. Paired t-tests: Vision vs. text-only within same scenarios
+4. Fleiss' kappa: Inter-agent agreement coefficient
+5. Cohen's d: Effect size for practical significance
+
+Reporting Standards:
+- Always report: mean, std dev, confidence intervals (95%)
+- Always include: sample size (n), test statistic, p-value
+- Multiple testing correction: Bonferroni or Benjamini-Hochberg
+- Effect sizes: Small (d=0.2), Medium (d=0.5), Large (d=0.8)
+
+Reproducibility:
+- Random seeds documented in appendix
+- Configuration files in supplementary material
+- Code released open-source on GitHub
+- Data sharing (anonymized if needed)
+
+
+LATEX SETUP
+-----------
+
+Template: NeurIPS 2025 official LaTeX template
+- neurips_2025.sty style file
+- 8 pages main content (strict limit)
+- Unlimited references and appendix
+- Two-column format
+- 10pt font
+
+Required Packages:
+- amsmath, amssymb (mathematical notation)
+- graphicx (figures)
+- booktabs (professional tables)
+- algorithm, algorithmic (pseudocode)
+- natbib (citations)
+- hyperref (clickable references)
+
+Repository Structure:
+paper/
+  ├── main.tex (main paper file)
+  ├── sections/
+  │   ├── 1_introduction.tex
+  │   ├── 2_related_work.tex
+  │   ├── 3_methodology.tex
+  │   ├── 4_experiments.tex
+  │   ├── 5_results.tex
+  │   ├── 6_discussion.tex
+  │   └── 7_conclusion.tex
+  ├── figures/
+  │   ├── architecture.pdf
+  │   ├── voting_protocol.pdf
+  │   ├── bug_detection_scaling.pdf
+  │   └── baseline_comparison.pdf
+  ├── tables/
+  │   ├── model_configs.tex
+  │   ├── results_summary.tex
+  │   └── persona_bugs.tex
+  ├── bibliography.bib
+  └── neurips_2025.sty
+
+
+SUBMISSION CHECKLIST
+-------------------
+
+Before Submission:
+□ All experiments completed with statistical significance
+□ All figures have high-resolution vector graphics
+□ All tables formatted with booktabs
+□ Abstract exactly 250 words
+□ Main content ≤ 8 pages
+□ Reproducibility statement included
+□ Code repository public and documented
+□ Ethical considerations discussed (if applicable)
+□ Author contributions statement
+□ Acknowledgments section
+□ Supplementary material prepared
+□ PDF compiled without errors
+□ Plagiarism check passed
+□ Co-authors approved final version
+
+NeurIPS Specific:
+□ Paper ID from submission system
+□ Dual submission declaration (not submitted elsewhere)
+□ Broader impact statement (if required)
+□ Checklist for artifact evaluation (optional)
+□ Video presentation (if accepted)
+
+
+TIMELINE TO SUBMISSION
+---------------------
+
+Week 1: Complete All Experiments
+- Day 1-2: Run Experiments 1A-1D (core)
+- Day 3-4: Run Experiments 2-3 (benchmarks)
+- Day 5-6: Statistical analysis & significance testing
+- Day 7: Generate all figures and tables
+
+Week 2: Write Paper Draft
+- Day 8-9: Results section (with real numbers)
+- Day 10-11: Methodology & Experimental Setup
+- Day 12-13: Introduction & Related Work
+- Day 14: Discussion & Conclusion
+
+Week 3: Polish & Review
+- Day 15-16: Create high-quality figures
+- Day 17-18: Proofread and improve clarity
+- Day 19: Internal review / feedback from advisor
+- Day 20-21: Revisions based on feedback
+
+Week 4: Final Preparation
+- Day 22: Write abstract (last)
+- Day 23: Format check (8 pages, style compliance)
+- Day 24: Supplementary material preparation
+- Day 25: arXiv preprint submission
+- Day 26-27: Buffer for last-minute issues
+- Day 28: NeurIPS official submission
+
+Target Submission Date: [TBD - check NeurIPS 2025 deadline, typically May]
+
+
+BACKUP PLAN (IF NEURIPS TIMELINE TOO TIGHT)
+------------------------------------------
+
+Alternative Venues:
+1. ICML (International Conference on Machine Learning) - Similar prestige
+2. AAAI (Association for Advancement of AI) - Broader scope
+3. ICSE (Int'l Conference on Software Engineering) - SE focused
+4. FSE (Foundations of Software Engineering) - Testing focus
+5. ASE (Automated Software Engineering) - Perfect fit
+
+Journal Options (If conference rejected):
+1. ACM Transactions on Software Engineering and Methodology (TOSEM)
+2. IEEE Transactions on Software Engineering (TSE)
+3. Journal of Systems and Software (JSS)
+4. Empirical Software Engineering (EMSE)
+
+Strategy: Submit to NeurIPS first, if rejected, quickly adapt for next venue
