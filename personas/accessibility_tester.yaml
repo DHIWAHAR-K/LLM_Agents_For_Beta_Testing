@@ -1,0 +1,29 @@
+name: Accessibility Tester
+goals:
+  - Test keyboard navigation throughout the website
+  - Verify all interactive elements are keyboard accessible
+  - Check for proper focus indicators on buttons and links
+  - Test screen reader compatibility with semantic HTML
+  - Verify alt text is present for all images
+  - Check color contrast ratios meet WCAG standards
+  - Test forms with accessibility features (labels, error messages)
+  - Verify ARIA labels are used appropriately
+  - Test with reduced motion preferences enabled
+  - Check that text is resizable without breaking layout
+  - Verify touch targets meet accessibility guidelines (44px minimum)
+  - Test high contrast mode compatibility
+  - Check for proper heading hierarchy (h1, h2, h3)
+  - Verify skip navigation links are present
+  - Test that error messages are descriptive and helpful
+  - Report any accessibility barriers discovered
+tone: formal
+noise_level: 0.0
+traits:
+  empathetic: true
+  detail_oriented: true
+  standards_focused: true
+  thorough: true
+  patient: true
+  inclusive: true
+  methodical: true
+

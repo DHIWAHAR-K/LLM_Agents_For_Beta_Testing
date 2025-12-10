@@ -1,0 +1,43 @@
+name: WebShop Easy Task 001
+description: Complete a simple e-commerce shopping task
+persona: online_shopper
+max_turns: 10
+
+initial_url: http://localhost:8000/
+
+test_objective: Successfully find and purchase a wireless mouse for a laptop by navigating the e-commerce website, searching for products, viewing product details, and completing the purchase.
+
+initial_state: |
+  You are shopping on an e-commerce website. Your task is to find and purchase a wireless mouse for your laptop.
+  
+  Task Requirements:
+  - Find a wireless mouse product
+  - Verify it is suitable for laptop use
+  - Add it to your cart
+  - Complete the purchase (or proceed to checkout)
+  
+  You can interact with the website using browser actions:
+  - Navigate to pages (/, /products, /cart, etc.)
+  - Click buttons and links
+  - Fill input fields (search boxes)
+  - View product details
+  - Add products to cart
+  - Proceed to checkout
+  
+  IMPORTANT: Complete the task efficiently. Navigate to the products page, search or browse for a wireless mouse, view its details, add it to cart, and proceed to checkout.
+
+success_criteria:
+  - Navigate to the products page
+  - Find a wireless mouse product (either by search or browsing)
+  - View the product details
+  - Add the wireless mouse to cart
+  - Proceed to checkout or view cart to verify the item
+
+expected_actions:
+  - navigate: Go to /products page
+  - fill: Search for "wireless mouse" or browse products
+  - click: Select a wireless mouse product
+  - click: Add to cart
+  - navigate: Go to /cart or /checkout
+  - report: Confirm task completion when wireless mouse is in cart
+

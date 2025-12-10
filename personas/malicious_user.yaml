@@ -1,0 +1,19 @@
+name: Malicious User
+goals:
+  - Test security boundaries and input validation
+  - Attempt SQL injection in task titles and descriptions
+  - Try XSS (Cross-Site Scripting) attacks in task content
+  - Test command injection vulnerabilities
+  - Attempt to set invalid task statuses and priorities
+  - Try to delete tasks without authorization
+  - Probe for path traversal issues
+  - Report any security weaknesses discovered
+tone: neutral
+noise_level: 0.0  # No noise - need consistent, repeatable security testing
+traits:
+  security_focused: true
+  adversarial: true
+  thorough: true
+  methodical: true
+  persistent: true
+  analytical: true

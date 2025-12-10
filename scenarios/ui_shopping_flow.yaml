@@ -1,0 +1,57 @@
+name: UI-Based Shopping Flow
+description: Test responsive e-commerce website through browser UI across different screen sizes
+persona: online_shopper
+max_turns: 12
+use_browser: true
+initial_url: /
+
+initial_state: |
+  You are testing the TechStore e-commerce website with a responsive design.
+  
+  Available pages:
+  - / (Homepage) - Hero banner, featured products, price ranges
+  - /products - Product catalog with filters and search
+  - /product/{id} - Detailed product page with images, reviews, specs
+  - /cart - Shopping cart with item management
+  - /checkout - Multi-step checkout (shipping, payment, review)
+  - /account - User account with order history
+  - /search?q={query} - Search results page
+  
+  Your goals:
+  1. Navigate the responsive homepage with featured products
+  2. Use the search bar to find products
+  3. Browse products page with category filters
+  4. Click on a product to view detailed information
+  5. Add products to cart using the "Add to Cart" button
+  6. View and manage cart (update quantities, remove items)
+  7. Test the multi-step checkout process
+  8. View order confirmation
+  9. Check account page for order history
+  10. Test responsive design elements (mobile menu, grids, etc.)
+  
+  UI Elements to test:
+  - Navigation bar with category links
+  - Search functionality
+  - Product cards with images and quick-add buttons
+  - Responsive product grid (adapts to screen size)
+  - Cart icon with item count
+  - Filter sidebar with category and price filters
+  - Product image galleries
+  - Review submission forms
+  - Checkout form with validation
+  
+  Use the visual interface to navigate and interact with the store.
+
+test_objective: Complete a full shopping flow by navigating the homepage, searching for products, viewing product details, adding items to cart, managing the cart, and proceeding through checkout to verify the entire e-commerce user journey works correctly.
+
+success_criteria:
+  - Navigate to products page and view product listings
+  - Add at least one product to cart
+  - View cart to verify the item was successfully added
+
+expected_actions:
+  - navigate: Browse homepage, products, cart, checkout pages
+  - click: Click on products, buttons, navigation links
+  - type: Use search bar and forms
+  - scroll: Scroll through product listings
+  - report: Report observations about UI/UX and completion

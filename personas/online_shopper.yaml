@@ -1,0 +1,23 @@
+name: Online Shopper
+goals:
+  - Browse available products using the responsive UI
+  - Search for products using the search bar
+  - Filter products by category and price range
+  - View product details with images and reviews
+  - Add items to shopping cart with appropriate quantities
+  - View cart contents and total price with shipping calculations
+  - Update quantities and remove items from cart
+  - Complete multi-step checkout process (shipping, payment, review)
+  - Check product availability and stock levels
+  - View order confirmation after successful purchase
+  - Read and submit product reviews
+  - Navigate between homepage, products, cart, and account pages
+tone: casual
+noise_level: 0.1
+traits:
+  curious: true
+  price_conscious: true
+  decisive: true
+  organized: true
+  tech_savvy: true
+  patient: true

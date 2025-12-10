@@ -1,0 +1,113 @@
+# Experiment 2: OWASP Juice Shop Security Testing
+# Research Question: How effective is the framework at detecting real security vulnerabilities?
+
+name: "owasp_juice_shop_security_testing"
+tier: "owasp"
+description: "Evaluate security vulnerability detection against OWASP Juice Shop benchmark (21 challenges covering OWASP Top 10)"
+research_question: "Can LLM agents detect real-world security vulnerabilities comparable to commercial tools?"
+
+baseline:
+  paper: "OWASP Benchmark Project"
+  metrics:
+    commercial_tools_tpr: "40-60%"
+    commercial_tools_fpr: "10-30%"
+    opensource_tools_tpr: "20-50%"
+    opensource_tools_fpr: "20-50%"
+  notes: "Published TPR/FPR for various SAST/DAST tools on OWASP Benchmark"
+
+ground_truth:
+  total_challenges: 21
+  challenges_by_owasp_category:
+    A01_broken_access_control: 3
+    A02_cryptographic_failures: 2
+    A03_injection: 6
+    A04_insecure_design: 2
+    A05_security_misconfiguration: 2
+    A06_vulnerable_components: 1
+    A07_authentication_failures: 2
+    A08_software_integrity: 1
+    A09_logging_monitoring: 1
+    A10_ssrf: 1
+
+configurations:
+  # Single adversarial persona
+  - name: "adversarial_attacker_single"
+    persona: "adversarial_attacker"
+    num_agents: 1
+    models: ["gpt-4o"]
+    vision_enabled: true
+
+  # Adversarial with committee
+  - name: "adversarial_attacker_committee"
+    persona: "adversarial_attacker"
+    num_agents: 3
+    models: ["gpt-4o", "gemini-2.5-pro", "grok-2-vision-1212"]
+    vision_enabled: true
+
+  # Malicious user persona
+  - name: "malicious_user_single"
+    persona: "malicious_user"
+    num_agents: 1
+    models: ["gpt-4o"]
+    vision_enabled: true
+
+  # Malicious user with committee
+  - name: "malicious_user_committee"
+    persona: "malicious_user"
+    num_agents: 3
+    models: ["gpt-4o", "gemini-2.5-pro", "grok-2-vision-1212"]
+    vision_enabled: true
+
+test_scenarios:
+  - name: "juice_shop_security_audit"
+    max_turns: 30
+    description: "Comprehensive security testing of Juice Shop"
+    target_url: "http://localhost:3000"
+
+execution:
+  runs_per_configuration: 3
+  seeds: [42, 123, 456]
+  parallel: false
+  total_runs: 12  # 4 configs × 3 runs
+
+  # Setup instructions
+  prerequisites:
+    - "docker pull bkimminich/juice-shop"
+    - "docker run -d -p 3000:3000 bkimminich/juice-shop"
+    - "Wait for Juice Shop to start (check http://localhost:3000)"
+
+metrics:
+  primary:
+    - true_positive_rate  # Challenges solved / total challenges
+    - false_positive_rate  # False security findings / total findings
+    - f1_score
+    - challenges_solved_by_category
+
+  secondary:
+    - time_to_detection
+    - detection_difficulty_correlation  # Do harder challenges take longer?
+    - total_cost_usd
+    - avg_latency_seconds
+
+  analysis:
+    - "Confusion matrix: TP, FP, TN, FN"
+    - "TPR/FPR comparison vs OWASP Benchmark baselines"
+    - "Heatmap: Detection rate by OWASP category"
+    - "Difficulty vs detection rate scatter plot"
+    - "Single vs multi-agent comparison"
+    - "Statistical significance: Our TPR vs baseline range"
+
+expected_results:
+  - "TPR: 40-60% (matching commercial tools)"
+  - "FPR: <20% (better than open-source tools)"
+  - "F1 Score: >0.50"
+  - "Higher detection on easier challenges (1-2 stars)"
+  - "Multi-agent improves detection by 10-15%"
+  - "Strong on SQL injection and XSS (A03)"
+  - "Weaker on advanced attacks (A08, A10)"
+
+paper_claims:
+  - "Achieves X% TPR on OWASP Juice Shop (baseline: 40-60% for commercial tools)"
+  - "F1 score of Y, outperforming open-source SAST tools (baseline: 20-50% TPR)"
+  - "Detects Z out of 21 security challenges across OWASP Top 10"
+  - "Multi-agent committee improves security detection by W%"

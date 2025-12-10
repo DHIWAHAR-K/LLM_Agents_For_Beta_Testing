@@ -1,0 +1,38 @@
+# Experiment 2 (Demo Variant): Price Manipulator with Multi-Agent Committee
+# Focuses solely on price/input manipulation security tests.
+
+name: "price_manipulator_multi_agent"
+tier: "owasp"
+description: "Run only the price manipulator scenario with a multi-agent committee."
+research_question: "Can a price-focused multi-agent committee detect input validation and price manipulation flaws in Juice Shop?"
+
+configurations:
+  - name: "price_manipulator_committee"
+    persona: "price_manipulator"
+    num_agents: 4
+    models: ["gpt-4o", "grok-2-vision-1212"]
+    vision_enabled: true
+
+test_scenarios:
+  - name: "security_commerce_test"
+    max_turns: 20
+    description: "Price and input manipulation security tests for Juice Shop UI"
+    target_url: "http://localhost:3000"
+
+execution:
+  runs_per_configuration: 1
+  seeds: [42]
+  parallel: false
+
+metrics:
+  primary:
+    - true_positive_rate
+    - false_positive_rate
+    - f1_score
+  secondary:
+    - total_cost_usd
+    - avg_latency_seconds
+
+expected_results:
+  - "Detects price/input validation weaknesses if present"
+  - "Provides qualitative report of attempted manipulations"

@@ -1,0 +1,123 @@
+# Experiment 3: WebShop E-Commerce Task Success
+# Research Question: How does the framework perform on standardized e-commerce tasks?
+
+name: "webshop_task_success"
+tier: "webshop"
+description: "Evaluate task success rate on WebShop benchmark (9 tasks across easy/medium/hard difficulties)"
+research_question: "Can multi-agent LLM testing match or exceed published WebShop baselines?"
+
+baseline:
+  paper: "WebShop: Towards Scalable Real-World Web Interaction with Grounded Language Agents (2022)"
+  metrics:
+    gpt3_success_rate: 50.1%
+    rl_agent_success_rate: 29.0%
+    human_performance: "60-70%"
+  notes: "GPT-3 with search+choice strategy achieved 50.1% task success; RL agent 29.0%"
+
+ground_truth:
+  total_tasks: 9
+  tasks_by_difficulty:
+    easy: 3
+    medium: 3
+    hard: 3
+
+configurations:
+  # Single agent baseline
+  - name: "online_shopper_single"
+    persona: "online_shopper"
+    num_agents: 1
+    models: ["gpt-4o"]
+    vision_enabled: true
+
+  # Multi-agent committee
+  - name: "online_shopper_committee"
+    persona: "online_shopper"
+    num_agents: 3
+    models: ["gpt-4o", "gemini-2.5-pro", "grok-2-vision-1212"]
+    vision_enabled: true
+
+  # Without vision (text-only)
+  - name: "online_shopper_text_only"
+    persona: "online_shopper"
+    num_agents: 1
+    models: ["gpt-4o"]
+    vision_enabled: false
+
+  # GPT-4o only (single model comparison)
+  - name: "gpt4o_only"
+    persona: "online_shopper"
+    num_agents: 1
+    models: ["gpt-4o"]
+    vision_enabled: true
+
+  # Gemini only
+  - name: "gemini_only"
+    persona: "online_shopper"
+    num_agents: 1
+    models: ["gemini-2.5-pro"]
+    vision_enabled: true
+
+  # Grok only
+  - name: "grok_only"
+    persona: "online_shopper"
+    num_agents: 1
+    models: ["grok-2-vision-1212"]
+    vision_enabled: true
+
+test_scenarios:
+  - name: "webshop_easy_001"
+    task_id: "task_easy_001"
+    instruction: "I need a wireless mouse for my laptop"
+    max_turns: 10
+
+execution:
+  runs_per_configuration: 3
+  seeds: [42, 123, 456]
+  parallel: false
+  total_runs: 18  # 6 configs × 1 task × 3 runs (removed claude_only)
+
+  # Setup instructions
+  prerequisites:
+    - "git clone https://github.com/princeton-nlp/WebShop.git"
+    - "cd WebShop && pip install -e ."
+    - "python -m webshop.run --port 3000"
+    - "Alternative: Use your e-commerce AUT as WebShop proxy"
+
+metrics:
+  primary:
+    - task_success_rate  # Purchased correct product
+    - reward_score  # 0.0-1.0 based on attribute matching
+    - action_efficiency  # Steps to completion
+
+  secondary:
+    - success_by_difficulty  # Easy/Medium/Hard breakdown
+    - attribute_match_accuracy  # How many required attributes matched
+    - total_cost_usd
+    - avg_latency_seconds
+
+  analysis:
+    - "Task success rate vs WebShop baseline (50.1%)"
+    - "Success rate by difficulty (easy/medium/hard)"
+    - "Single vs multi-agent comparison"
+    - "Vision vs text-only comparison"
+    - "Per-model performance comparison"
+    - "Action efficiency vs baseline"
+    - "Statistical significance: Our success rate vs 50.1%"
+    - "Reward score distribution"
+
+expected_results:
+  - "Overall success rate: 50-60% (matching or exceeding GPT-3 baseline)"
+  - "Easy tasks: >70% success"
+  - "Medium tasks: 50-60% success"
+  - "Hard tasks: 30-40% success"
+  - "Multi-agent improves success by 10-15%"
+  - "Vision improves success by 15-20%"
+  - "GPT-4o outperforms other models"
+  - "Action efficiency: 8-12 steps avg (baseline: ~10 steps)"
+
+paper_claims:
+  - "Achieves X% task success on WebShop (baseline: 50.1% with GPT-3)"
+  - "Multi-agent committee improves success by Y% over single agent"
+  - "Vision-enabled agents achieve Z% higher success than text-only"
+  - "Reward score of W (attribute matching accuracy)"
+  - "Demonstrates scalability to real-world e-commerce scenarios"

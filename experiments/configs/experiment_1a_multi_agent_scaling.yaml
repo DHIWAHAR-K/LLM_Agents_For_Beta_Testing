@@ -1,0 +1,69 @@
+# Experiment 1A: Multi-Agent Committee Scaling
+# Research Question: How does committee size affect testing quality?
+
+name: "multi_agent_committee_scaling"
+tier: "your_aut"
+description: "Evaluate the impact of committee size (1, 2, 3, 4 agents) on task success rate and bug detection"
+research_question: "Does multi-agent consensus improve testing quality compared to single-agent?"
+
+baseline:
+  paper: "Self-Collaboration Code Generation via ChatGPT (2023)"
+  metric: "improvement_over_single_agent"
+  value: 10-15%  # Expected improvement range
+  notes: "HumanEval pass@1: 77.4% (multi) vs 67% (single) = 15.5% improvement"
+
+configurations:
+  # Single agent baseline
+  - name: "single_agent_gpt4o"
+    num_agents: 1
+    models: ["gpt-4o"]
+    vision_enabled: true
+
+  # 2 agents
+  - name: "two_agents"
+    num_agents: 2
+    models: ["gpt-4o", "gemini-2.5-pro"]
+    vision_enabled: true
+
+  # 3 agents (full committee - all available models)
+  - name: "three_agents"
+    num_agents: 3
+    models: ["gpt-4o", "gemini-2.5-pro", "grok-2-vision-1212"]
+    vision_enabled: true
+
+test_scenarios:
+  - name: "ui_shopping_flow"
+    persona: "online_shopper"
+    max_turns: 12
+
+execution:
+  runs_per_configuration: 3  # 3 runs with different seeds
+  seeds: [42, 123, 456]
+  parallel: false  # Run sequentially to avoid resource contention
+  total_runs: 12  # 4 configs × 1 scenario × 3 runs (updated: removed 4-agent config, kept 3-agent)
+
+metrics:
+  primary:
+    - task_success_rate
+    - vulnerabilities_detected
+    - avg_committee_agreement
+
+  secondary:
+    - total_cost_usd
+    - avg_latency_seconds
+    - consensus_strength
+    - mind_changes
+
+  analysis:
+    - "Plot task_success_rate vs num_agents with 95% CI"
+    - "Plot bugs_detected vs num_agents with 95% CI"
+    - "Cost-benefit analysis: improvement vs API cost"
+    - "Statistical significance test: single vs multi (t-test)"
+    - "Agreement correlation with correctness"
+
+expected_results:
+  - "Multi-agent improves success rate by 10-20%"
+  - "More bugs detected with larger committees"
+  - "Diminishing returns after 3 agents"
+  - "Higher agreement correlates with correctness"
+  - "Cost increases linearly with num_agents"

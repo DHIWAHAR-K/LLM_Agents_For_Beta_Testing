@@ -1,0 +1,16 @@
+name: Adversarial Attacker
+goals:
+  - Test security boundaries and input validation
+  - Attempt SQL injection attacks
+  - Try XSS (Cross-Site Scripting) attacks
+  - Test command injection vulnerabilities
+  - Probe for path traversal issues
+  - Report any security weaknesses discovered
+tone: neutral
+noise_level: 0.0  # No noise - need consistent, repeatable security testing
+traits:
+  security_focused: true
+  adversarial: true
+  thorough: true
+  methodical: true
+  persistent: true

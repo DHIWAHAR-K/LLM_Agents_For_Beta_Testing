@@ -1,0 +1,116 @@
+name: E-commerce Security Testing
+description: Test security boundaries, search behavior, and price filters in the e-commerce UI
+persona: price_manipulator
+max_turns: 20
+
+initial_url: /
+
+test_objective: |
+  Validate search correctness and price filters while probing security. Ensure:
+  - Search returns relevant products and does not execute payloads.
+  - Price filters (#minPrice/#maxPrice) constrain results correctly.
+  - Report observed behavior and any vulnerabilities after each major test.
+
+initial_state: |
+  You are testing the security and correctness of TechStore's e-commerce website at http://localhost:8000 through the user interface.
+  
+  You can interact with the website using browser actions:
+  - Navigate to pages (/, /products, /cart, etc.)
+  - Click buttons and links
+  - Fill input fields (search boxes, quantity inputs, etc.)
+  - Scroll to view content
+  
+  Functional + Security Test Cases to Execute (through the UI):
+
+  0. SEARCH FUNCTIONALITY (Happy path):
+     - Enter a normal search term (e.g., "headphones") in #searchInput and click the search button to submit (do not just type).
+     - Wait for results to load. After the search completes, CHECK THE "Products Visible" SECTION in your observation text to see the actual product names displayed on the page.
+     - IMPORTANT: Examine ALL product names listed in the "Products Visible" section. If you see unrelated products (e.g., searching "headphones" but seeing "Shower Curtain Set" or "Cordless Vacuum"), REMEMBER this bug for your final report but DO NOT use the "report" action yet - continue with the test flow.
+     - Click exactly ONE "Add to Cart" button for a relevant product and confirm cart count increases. Do NOT add multiple items from the search page.
+     - After adding, navigate back to /products page (use the .back-to-products button) and confirm cart count is still correct.
+     - Use min/max price filters (#minPrice, #maxPrice) with normal values (e.g., 10 and 200), fill both inputs, click Apply Filters, then wait for filtered products to load.
+     - CHECK THE "Products Visible" SECTION again to verify results are within the price range. REMEMBER any issues for your final report.
+     - Add the first product shown after applying filters to cart.
+     - Navigate to /cart page (click the cart icon / go-to-cart) and verify BOTH products are present with correct names and quantities. Do NOT restart search after filters.
+
+  1. SEARCH BOX SECURITY TESTS (Text Input):
+     - Test XSS in search: Enter "<script>alert('XSS')</script>" in search box (#searchInput), then click the search button or move to next test
+     - Test SQL injection in search: Enter "' OR 1=1--" in search box, then click the search button or move to next test
+     - Test command injection: Enter "; rm -rf /" in search box, then click the search button or move to next test
+     - Test path traversal: Enter "../../etc/passwd" in search box, then click the search button or move to next test
+     IMPORTANT: After filling the search input with a test payload, you should either:
+       * Click the search button (if visible) to submit the search, OR
+       * Move on to test the next security vulnerability (don't fill the same input again with the same payload)
+
+  2. PRICE FILTER SECURITY TESTS (Number Input):
+     - Test negative prices: Enter "-100" in Min or Max price input (#minPrice or #maxPrice)
+     - Test very large numbers: Enter "999999999" in price inputs (overflow test)
+     - Test zero: Enter "0" in price inputs
+     - Test non-numeric values: Enter "abc" or "1' OR '1'='1" in price inputs (should be rejected by browser, but test anyway)
+
+  3. CART QUANTITY VALIDATION TESTS:
+     - Navigate to products page and add a product to cart
+     - Try to set quantity to negative number (if quantity input is editable)
+     - Try to set quantity to zero
+     - Try to set quantity to excessive number (999, 9999)
+     - Try to set quantity higher than available stock
+
+  4. URL MANIPULATION TESTS:
+     - Navigate to URLs with SQL injection: /products?category=' OR 1=1--
+     - Navigate to URLs with XSS: /products?search=<script>alert('XSS')</script>
+     - Try accessing admin pages: /admin, /api/products directly
+
+  5. UI INPUT VALIDATION TESTS:
+     - Look for any input fields on the website (search, forms, etc.)
+     - Test each input field with malicious payloads:
+       * XSS: <script>alert('XSS')</script>
+       * SQL: ' OR 1=1--
+       * Command injection: ; rm -rf /
+     - Observe if the website properly sanitizes or blocks these inputs
+
+  6. BUSINESS LOGIC TESTS:
+     - Try to checkout with empty cart
+     - Add multiple items to cart and test quantity limits
+     - Check if cart persists correctly across navigation
+
+  7. DATA EXPOSURE TESTS:
+     - Inspect the HTML source for exposed sensitive data
+     - Check if API keys, tokens, or internal data are visible in page source
+     - Look for comments in HTML that might reveal system information
+
+  IMPORTANT: You are testing through the UI only. Use browser actions (navigate, click, fill) to interact with the website.
+  Do NOT try to directly call API endpoints - test security through the user interface.
+  
+  TESTING STRATEGY:
+  - After filling an input field with a security test payload, observe the result and then move to the next test
+  - Do NOT fill the same input field multiple times with the same payload
+  - Test different inputs and different payloads to maximize coverage
+  - If you've tested a specific input with one payload type (e.g., XSS), try a different payload type (e.g., SQL injection) or move to a different input field
+
+  WHEN TO USE THE "report" ACTION:
+  - DO NOT use "report" action until you have completed ALL test cases above (search functionality, price filters, cart verification, security tests)
+  - The "report" action should ONLY be used at the END of testing to submit a comprehensive final report summarizing ALL findings
+  - During testing, REMEMBER bugs you discover but continue with the test flow - don't report prematurely
+
+success_criteria:
+  - Navigate to the products page
+  - Execute a normal search term by clicking the search button
+  - "Verify search results relevance: Check if ALL products match the query and report any unrelated products found"
+  - Add exactly one product to cart after search and confirm the cart counter updates
+  - Navigate back to /products (use back-to-products) and confirm cart count is correct
+  - "Apply min/max price filters with valid values and verify results are within price range; report if not"
+  - Add a filtered product to cart
+  - Navigate to /cart page and verify BOTH products are present with correct details
+  - "Attempt at least 3 different security tests (XSS, SQL injection, input validation) via search and price inputs"
+  - "Use a \"report\" action to summarize all issues observed including search relevance bugs (specific unrelated products found), filter correctness issues, cart verification results, and security findings"
+
+expected_actions:
+  - navigate: Go to /products page
+  - fill + click: Perform normal search and submit via search buttons (#searchButtonMain or #searchButtonHeader)
+  - fill: Enter XSS or SQL injection in search box (#searchInput)
+  - fill: Enter negative or non-numeric values in price filter inputs (#minPrice or #maxPrice)
+  - click: Add product to cart (once from search, once after filtering)
+  - click: Use back-to-products button/link to return to /products after first add-to-cart from search
+  - click: Go to cart page (via cart icon / go-to-cart) after adding filtered product
+  - fill: Try to modify cart quantity with invalid values
+  - report: Document any security vulnerabilities found

@@ -1,0 +1,67 @@
+name: Juice Shop Security Audit
+description: Comprehensive security testing of OWASP Juice Shop application
+persona: adversarial_attacker
+max_turns: 30
+
+initial_url: http://localhost:8000/
+
+test_objective: Perform a comprehensive security audit of the OWASP Juice Shop application, attempting to discover and exploit security vulnerabilities across OWASP Top 10 categories including injection attacks, broken access control, authentication failures, and other common vulnerabilities.
+
+initial_state: |
+  You are performing a security audit of the e-commerce application at http://localhost:8000.
+  
+  This is an e-commerce web application. Your goal is to discover and exploit security vulnerabilities.
+  
+  Security Testing Areas:
+  
+  1. INJECTION ATTACKS:
+     - SQL Injection in search, login, product filters
+     - NoSQL Injection in API endpoints
+     - Command Injection in file uploads
+     - XSS (Cross-Site Scripting) in product reviews, search, user profiles
+  
+  2. BROKEN ACCESS CONTROL:
+     - Access admin pages without authentication
+     - View other users' data
+     - Modify product prices or user accounts
+     - Access restricted API endpoints
+  
+  3. AUTHENTICATION FAILURES:
+     - Bypass login with SQL injection
+     - Weak password policies
+     - Session hijacking
+     - Password reset vulnerabilities
+  
+  4. CRYPTOGRAPHIC FAILURES:
+     - Weak encryption
+     - Exposed sensitive data
+     - Insecure data transmission
+  
+  5. INSECURE DESIGN:
+     - Business logic flaws
+     - Privilege escalation
+     - Unauthorized actions
+  
+  You can interact with the website using browser actions:
+  - Navigate to pages
+  - Click buttons and links
+  - Fill input fields (search, login, forms)
+  - Submit forms
+  - View page source for exposed data
+  
+  IMPORTANT: This is a security testing scenario. Test various attack vectors and report any vulnerabilities discovered.
+
+success_criteria:
+  - Navigate through the application and explore different pages
+  - Attempt at least 5 different types of security tests (injection, XSS, access control, etc.)
+  - Test login/authentication mechanisms
+  - Test input fields with malicious payloads
+  - Attempt to access restricted areas
+  - Report any security vulnerabilities discovered
+
+expected_actions:
+  - navigate: Explore the application structure
+  - fill: Test input fields with SQL injection, XSS payloads
+  - click: Attempt to access admin/restricted areas
+  - report: Document any security vulnerabilities found
+

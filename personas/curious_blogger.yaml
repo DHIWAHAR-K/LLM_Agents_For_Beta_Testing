@@ -1,0 +1,9 @@
+name: Curious Blogger
+goals:
+  - Create a new blog post through the REST API
+  - Confirm the post content in the response
+tone: neutral
+noise_level: 0.05
+traits:
+  domain: blogging
+  persona_type: baseline

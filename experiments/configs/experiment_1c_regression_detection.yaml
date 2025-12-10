@@ -1,0 +1,99 @@
+# Experiment 1C: Regression Detection Capability
+# Research Question: Can LLM agents detect functional regressions across versions?
+
+name: "regression_detection"
+tier: "your_aut"
+description: "Evaluate ability to detect 15 intentional regressions between AUT v1.0 and v2.0"
+research_question: "Can LLM agents automatically detect regressions across app versions?"
+
+baseline:
+  paper: "Novel Contribution - No direct baseline"
+  metric: "regression_detection_rate"
+  value: "N/A"
+  notes: "First study of automated regression detection with LLM agents for REST APIs"
+
+ground_truth:
+  total_regressions: 15
+  regressions_by_type:
+    breaking_change: 5
+    behavioral_change: 5
+    performance_degradation: 3
+    ui_regression: 2
+
+configurations:
+  # Run same tests on v1.0 (baseline)
+  - name: "v1_online_shopper"
+    aut_version: "v1.0"
+    persona: "online_shopper"
+    num_agents: 3
+    models: ["gpt-4o", "gemini-2.5-pro", "grok-2-vision-1212"]
+
+  - name: "v1_adversarial_attacker"
+    aut_version: "v1.0"
+    persona: "adversarial_attacker"
+    num_agents: 3
+    models: ["gpt-4o", "gemini-2.5-pro", "grok-2-vision-1212"]
+
+  - name: "v1_accessibility_tester"
+    aut_version: "v1.0"
+    persona: "accessibility_tester"
+    num_agents: 3
+    models: ["gpt-4o", "gemini-2.5-pro", "grok-2-vision-1212"]
+
+  # Run same tests on v2.0 (with regressions)
+  - name: "v2_online_shopper"
+    aut_version: "v2.0"
+    persona: "online_shopper"
+    num_agents: 3
+    models: ["gpt-4o", "gemini-2.5-pro", "grok-2-vision-1212"]
+
+  - name: "v2_adversarial_attacker"
+    aut_version: "v2.0"
+    persona: "adversarial_attacker"
+    num_agents: 3
+    models: ["gpt-4o", "gemini-2.5-pro", "grok-2-vision-1212"]
+
+  - name: "v2_accessibility_tester"
+    aut_version: "v2.0"
+    persona: "accessibility_tester"
+    num_agents: 3
+    models: ["gpt-4o", "gemini-2.5-pro", "grok-2-vision-1212"]
+
+test_scenarios:
+  - name: "ui_shopping_flow"
+    max_turns: 12
+
+execution:
+  runs_per_configuration: 3
+  seeds: [42, 123, 456]
+  parallel: false
+  total_runs: 18  # 6 configs × 1 scenario × 3 runs
+
+  # Post-processing: Compare v1 vs v2 runs to detect regressions
+  regression_detection_method: "comparison"
+
+metrics:
+  primary:
+    - regression_detection_rate  # detected / total
+    - false_positive_rate
+    - detection_by_regression_type
+
+  secondary:
+    - time_to_first_detection
+    - consistency_score  # same findings across runs
+    - detection_confidence
+
+  analysis:
+    - "Confusion matrix: TP, FP, TN, FN for regression detection"
+    - "Detection rate by regression type (breaking, behavioral, perf, UI)"
+    - "Which personas detect which regression types best"
+    - "Consistency: % of runs that detect same regressions"
+    - "Time to detection distribution"
+
+expected_results:
+  - "Breaking changes: >80% detection rate"
+  - "Behavioral changes: 50-70% detection rate"
+  - "Performance degradation: 60-80% detection rate"
+  - "UI regressions: >75% detection rate (with vision)"
+  - "False positive rate: <20%"
+  - "High consistency across runs (>80%)"

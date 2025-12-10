@@ -1,0 +1,70 @@
+# Multi-model configuration for true multi-agent testing
+# Using DIFFERENT providers (OpenAI, Google, Anthropic) for maximum diversity
+
+temperature: 0.2
+max_retries: 2
+
+# Using models from 4 different AI providers - TRUE cross-provider diversity
+models:
+  - name: gpt-4o
+    provider: openai
+    description: "GPT-4o - OpenAI's flagship multimodal model"
+  
+  - name: gemini-1.5-flash
+    provider: google
+    description: "Gemini 1.5 Flash - Google's fast and efficient vision model"
+
+  - name: gemini-2.5-flash
+    provider: google
+    description: "Gemini 2.5 Flash - Google's newer fast vision model"
+  
+  - name: claude-opus-4-1
+    provider: anthropic
+    description: "Claude Opus 4.1 - Anthropic's most capable vision model"
+  
+  - name: grok-2-vision-1212
+    provider: xai
+    description: "Grok 2 Vision 1212 - xAI's Grok 2 multimodal model with vision capabilities"
+
+# Provider-specific configuration
+providers:
+  openai:
+    base_url: https://api.openai.com/v1
+    api_key_env: OPENAI_API_KEY
+  
+  google:
+    api_key_env: GOOGLE_API_KEY
+  
+  anthropic:
+    api_key_env: ANTHROPIC_API_KEY
+  
+  xai:
+    base_url: https://api.x.ai/v1
+    api_key_env: XAI_API_KEY
+
+# Model Characteristics:
+# OpenAI:
+#   - gpt-4o: Best overall, ~$0.005/image + $0.03/1K tokens
+# 
+# Google:
+#   - gemini-2.5-pro: Latest and most capable Gemini model, 2M token context
+#   - Superior multimodal capabilities, production-ready
+# 
+# Anthropic:
+#   - claude-opus-4-1: Most powerful Claude model, exceptional reasoning
+#   - Known for careful analysis and detailed vision understanding
+# 
+# xAI:
+#   - grok-2-vision-1212: Grok 2 Vision advanced multimodal model with strong visual reasoning
+#   - Context: 32,768 tokens, $2.00/1M input + $10.00/1M output tokens, 600 rpm
+
+# This gives you TRUE multi-provider diversity:
+# - 4 completely different companies
+# - 4 different training approaches
+# - 4 different model architectures
+
+# Note: API keys are stored in config/.env
+# - OPENAI_API_KEY=sk-...
+# - GOOGLE_API_KEY=AIza...
+# - ANTHROPIC_API_KEY=sk-ant-...
+# - XAI_API_KEY=xai-...

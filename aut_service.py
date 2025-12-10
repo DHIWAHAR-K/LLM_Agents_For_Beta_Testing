@@ -573,6 +573,7 @@ def get_products(
     category: Optional[str] = None,
     min_price: Optional[float] = None,
     max_price: Optional[float] = None,
+    q: Optional[str] = None,
     sort: str = "name",
     page: int = 1,
     limit: int = 12
@@ -585,6 +586,38 @@ def get_products(
     # Apply filters
     if category:
         filtered = [p for p in filtered if p.get("category", "").lower() == category.lower()]
+
+    if q:
+        query = q.lower()
+        # Filter products matching the query
+        matching = [
+            p for p in filtered
+            if query in p.get("name", "").lower() or query in p.get("description", "").lower()
+        ]
+
+        # BUG: Inject 2 random unrelated products into search results
+        # This simulates a search relevance bug that agents should detect and report
+        non_matching = [
+            p for p in filtered
+            if query not in p.get("name", "").lower() and query not in p.get("description", "").lower()
+        ]
+
+        import random
+        if len(matching) > 0 and len(non_matching) >= 2:
+            # Keep 1 relevant product and add 2 unrelated products
+            filtered = [matching[0]] + random.sample(non_matching, 2)
+        else:
+            filtered = matching
+
+        # Always sort so that relevant products come first; keep unrelated for reporting
+        filtered = sorted(
+            filtered,
+            key=lambda p: (
+                0 if query in p.get("name", "").lower() or query in p.get("description", "").lower() else 1,
+                p.get("price", 0)
+            )
+        )
+
     if min_price is not None:
         filtered = [p for p in filtered if p["price"] >= min_price]
     if max_price is not None:
@@ -603,13 +636,16 @@ def get_products(
     # Pagination
     start = (page - 1) * limit
     end = start + limit
+    total_pages = (len(filtered) + limit - 1) // limit
     
     return {
         "products": filtered[start:end],
         "total": len(filtered),
         "page": page,
         "limit": limit,
-        "total_pages": (len(filtered) + limit - 1) // limit
+        "total_pages": total_pages,
+        # alias for existing front-end usage
+        "pages": total_pages,
     }
 
 

@@ -182,10 +182,17 @@
                 </a>
                 
                 <div class="search-bar d-flex">
-                    <input type="text" id="searchInput" class="form-control" placeholder="Search for products...">
-                    <button class="btn" onclick="performSearch()">
+                    <input type="text" id="searchInputHeader" class="form-control" placeholder="Search for products...">
+                    <button id="searchButtonHeader" class="btn search-button" onclick="performSearchFromHeader()" aria-label="Search products" data-testid="search-button-header">
                         <i class="bi bi-search"></i>
                     </button>
+                </div>
+
+                <div class="d-flex align-items-center gap-3">
+                    <a href="/cart" class="cart-icon go-to-cart text-white position-relative" data-testid="go-to-cart">
+                        <i class="bi bi-cart3" style="font-size: 1.5rem;"></i>
+                        <span class="cart-count badge bg-warning text-dark position-absolute top-0 start-100 translate-middle" id="cartCountHeader">0</span>
+                    </a>
                 </div>
             </div>
         </div>
@@ -195,11 +202,25 @@
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb">
                 <li class="breadcrumb-item"><a href="/">Home</a></li>
+                <li class="breadcrumb-item"><a href="/products">Products</a></li>
                 <li class="breadcrumb-item active">Search Results</li>
             </ol>
         </nav>
 
-        <h4 id="searchTitle" class="mb-4">Search Results</h4>
+        <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+            <h4 id="searchTitle" class="mb-0">Search Results</h4>
+            <a href="/products" class="btn btn-outline-primary back-to-products" data-testid="back-to-products">
+                <i class="bi bi-arrow-left"></i> Back to All Products
+            </a>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="alert alert-info">
+                    Showing results for your search query. <a href="/products" class="alert-link">Browse all products with filters</a>
+                </div>
+            </div>
+        </div>
 
         <div class="row g-4" id="searchResults">
             <div class="col-12 text-center py-5">
@@ -212,32 +233,65 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        function performSearch() {
-            const query = document.getElementById('searchInput').value || new URLSearchParams(window.location.search).get('q');
+        function getQueryParams() {
+            const params = new URLSearchParams(window.location.search);
+            return {
+                q: params.get('q') || '',
+                min_price: params.get('min_price') || '',
+                max_price: params.get('max_price') || ''
+            };
+        }
+
+        function performSearchFromHeader() {
+            const query = document.getElementById('searchInputHeader').value.trim();
+            if (query) {
+                window.location.href = `/search?q=${encodeURIComponent(query)}`;
+            }
+        }
+
+        function performSearch(pushState = false) {
+            const urlParams = getQueryParams();
+            const query = (document.getElementById('searchInputHeader')?.value || urlParams.q || '').trim();
+
             if (!query) {
                 window.location.href = '/products';
                 return;
             }
 
-            document.getElementById('searchInput').value = query;
+            if (pushState) {
+                const nextParams = new URLSearchParams();
+                nextParams.set('q', query);
+                const newUrl = `/search?${nextParams.toString()}`;
+                window.history.pushState({}, '', newUrl);
+            }
+
             document.getElementById('searchTitle').textContent = `Search Results for "${query}"`;
 
-            fetch(`/api/products?q=${encodeURIComponent(query)}`)
+            const params = new URLSearchParams();
+            params.set('q', query);
+
+            fetch(`/api/products?${params.toString()}`)
                 .then(res => res.json())
                 .then(data => {
+                    console.log('Search API response:', data);
+                    console.log('Products count:', data.products?.length);
                     displayResults(data.products, query);
                 })
                 .catch(err => {
                     console.error('Error searching:', err);
-                    document.getElementById('searchResults').innerHTML = 
+                    document.getElementById('searchResults').innerHTML =
                         '<div class="col-12 text-center text-danger">Error loading search results</div>';
                 });
         }
 
         function displayResults(products, query) {
             const container = document.getElementById('searchResults');
-            
-            if (products.length === 0) {
+            console.log('displayResults called with:', products.length, 'products, query:', query);
+
+            // The API already filters products, so we don't need to filter again
+            if (!products || products.length === 0) {
+                console.warn('No products to display');
+
                 container.innerHTML = `
                     <div class="col-12">
                         <div class="no-results">
@@ -263,7 +317,7 @@
                                 <span class="text-muted">(${product.reviews_count || 0})</span>
                             </div>
                             <div class="product-price">$${product.price.toFixed(2)}</div>
-                            <button class="btn btn-primary w-100 mt-2" onclick="addToCart('${product.id}')">
+                            <button class="btn btn-primary w-100 mt-2 add-to-cart" data-testid="add-to-cart" onclick="addToCart('${product.id}')">
                                 <i class="bi bi-cart-plus"></i> Add to Cart
                             </button>
                         </div>
@@ -278,7 +332,8 @@
                 .then(data => {
                     // Calculate total count from items array
                     const count = data.items ? data.items.reduce((sum, item) => sum + item.quantity, 0) : 0;
-                    document.getElementById('cartCount').textContent = count;
+                    const cartCountHeader = document.getElementById('cartCountHeader');
+                    if (cartCountHeader) cartCountHeader.textContent = count;
                 })
                 .catch(err => console.error('Error updating cart count:', err));
         }
@@ -291,22 +346,61 @@
             })
             .then(res => res.json())
             .then(data => {
-                updateCartCount();
-                console.log('Added to cart:', productId);
+                // Fetch cart to get updated count
+                return fetch('/api/cart?session_id=default')
+                    .then(res => res.json())
+                    .then(cartData => {
+                        const count = cartData.items ? cartData.items.reduce((sum, item) => sum + item.quantity, 0) : 0;
+
+                        // Update cart counter
+                        const cartCountHeader = document.getElementById('cartCountHeader');
+                        if (cartCountHeader) cartCountHeader.textContent = count;
+
+                        // Show success notification with cart count
+                        const notification = document.createElement('div');
+                        notification.innerHTML = '<div style="font-size: 1.2rem; margin-bottom: 0.5rem;">✓ Added to cart!</div><div style="font-size: 0.9rem;">Cart now has ' + count + ' item(s)</div>';
+                        notification.style.cssText = 'position: fixed; top: 20px; right: 20px; background: #28a745; color: white; padding: 1rem 1.5rem; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.2); z-index: 9999; font-weight: 600;';
+                        document.body.appendChild(notification);
+
+                        setTimeout(() => {
+                            notification.style.transition = 'opacity 0.3s';
+                            notification.style.opacity = '0';
+                            setTimeout(() => notification.remove(), 300);
+                        }, 3000);
+
+                        console.log('Added to cart:', productId, 'Total items:', count);
+                    });
             })
-            .catch(err => console.error('Error adding to cart:', err));
+            .catch(err => {
+                console.error('Error adding to cart:', err);
+                alert('Failed to add item to cart');
+            });
         }
 
-        document.getElementById('searchInput').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                performSearch();
-            }
-        });
+        const searchInputHeader = document.getElementById('searchInputHeader');
+        if (searchInputHeader) {
+            searchInputHeader.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    performSearchFromHeader();
+                }
+            });
+        }
+
+        function updateCartCountHeader() {
+            fetch('/api/cart?session_id=default')
+                .then(res => res.json())
+                .then(data => {
+                    const count = data.items ? data.items.reduce((sum, item) => sum + item.quantity, 0) : 0;
+                    const badge = document.getElementById('cartCountHeader');
+                    if (badge) badge.textContent = count;
+                })
+                .catch(err => console.error('Error updating cart count (header):', err));
+        }
 
         document.addEventListener('DOMContentLoaded', function() {
+            updateCartCountHeader();
             performSearch();
         });
     </script>
 </body>
 </html>
-

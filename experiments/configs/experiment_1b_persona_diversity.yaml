@@ -1,0 +1,114 @@
+# Experiment 1B: Persona Behavioral Diversity
+# Research Question: Do different personas discover distinct bug classes?
+
+name: "persona_behavioral_diversity"
+tier: "your_aut"
+description: "Evaluate bug detection coverage across 9 different personas against 20 injected bugs"
+research_question: "Do different personas discover distinct bug classes and achieve higher total coverage?"
+
+baseline:
+  paper: "Software Testing with Large Language Models (Wang et al., 2024)"
+  metric: "test_coverage"
+  value: "60-80%"  # Typical code coverage for automated tools
+  notes: "We compare bug detection coverage across personas vs single persona"
+
+ground_truth:
+  total_bugs: 20
+  bugs_by_type:
+    functional: 5
+    security: 7
+    business_logic: 4
+    accessibility: 4
+
+configurations:
+  # Test each persona independently
+  - name: "online_shopper"
+    persona: "online_shopper"
+    num_agents: 3  # Use 3-agent committee with all available APIs
+    models: ["gpt-4o", "gemini-2.5-pro", "grok-2-vision-1212"]
+    expected_bugs: ["functional", "some_security"]
+
+  - name: "adversarial_attacker"
+    persona: "adversarial_attacker"
+    num_agents: 4
+    models: ["gpt-4o", "gemini-2.5-pro", "grok-2-vision-1212"]
+    expected_bugs: ["security", "business_logic"]
+
+  - name: "price_manipulator"
+    persona: "price_manipulator"
+    num_agents: 4
+    models: ["gpt-4o", "gemini-2.5-pro", "grok-2-vision-1212"]
+    expected_bugs: ["business_logic", "security"]
+
+  - name: "accessibility_tester"
+    persona: "accessibility_tester"
+    num_agents: 4
+    models: ["gpt-4o", "gemini-2.5-pro", "grok-2-vision-1212"]
+    expected_bugs: ["accessibility", "functional"]
+
+  - name: "mobile_shopper"
+    persona: "mobile_shopper"
+    num_agents: 4
+    models: ["gpt-4o", "gemini-2.5-pro", "grok-2-vision-1212"]
+    expected_bugs: ["functional", "accessibility"]
+
+  - name: "curious_blogger"
+    persona: "curious_blogger"
+    num_agents: 4
+    models: ["gpt-4o", "gemini-2.5-pro", "grok-2-vision-1212"]
+    expected_bugs: ["functional"]
+
+  - name: "project_manager"
+    persona: "project_manager"
+    num_agents: 4
+    models: ["gpt-4o", "gemini-2.5-pro", "grok-2-vision-1212"]
+    expected_bugs: ["functional", "business_logic"]
+
+  - name: "ux_researcher"
+    persona: "ux_researcher"
+    num_agents: 4
+    models: ["gpt-4o", "gemini-2.5-pro", "grok-2-vision-1212"]
+    expected_bugs: ["accessibility", "functional"]
+
+  - name: "malicious_user"
+    persona: "malicious_user"
+    num_agents: 4
+    models: ["gpt-4o", "gemini-2.5-pro", "grok-2-vision-1212"]
+    expected_bugs: ["security", "business_logic"]
+
+test_scenarios:
+  - name: "security_commerce_test"
+    max_turns: 20
+
+execution:
+  runs_per_configuration: 3  # 3 runs per persona
+  seeds: [42, 123, 456]
+  parallel: false
+  total_runs: 27  # 9 personas × 3 runs
+
+metrics:
+  primary:
+    - bugs_detected_by_persona
+    - bugs_detected_by_type
+    - unique_bugs_per_persona
+    - coverage_percentage
+
+  secondary:
+    - false_positive_rate
+    - true_positive_rate
+    - behavioral_diversity_score
+    - action_sequence_similarity
+
+  analysis:
+    - "Heatmap: persona × bug_type coverage matrix"
+    - "Venn diagram: unique bugs per persona"
+    - "Total coverage: union of all personas vs single persona"
+    - "Jaccard similarity of action sequences between personas"
+    - "Statistical test: coverage improvement with persona diversity"
+
+expected_results:
+  - "Adversarial personas detect most security bugs (TPR >70%)"
+  - "Accessibility tester finds all A11Y bugs"
+  - "Combined personas achieve >80% total coverage"
+  - "Each persona finds unique bugs missed by others"
+  - "Behavioral diversity correlates with coverage improvement"
