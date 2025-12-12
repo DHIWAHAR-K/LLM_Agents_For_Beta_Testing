@@ -4,320 +4,172 @@
 
 ## Overview
 
-This framework uses **multi-agent LLM committees** with **vision capabilities** (LLaVA) to test web applications through visible browser automation. Multiple agents analyze screenshots, discuss, and reach consensus on actions to take, simulating realistic user behavior while catching bugs and security vulnerabilities.
+This framework utilizes **multi-agent LLM committees** with **vision capabilities** (LLaVA, GPT-4o, Gemini, Claude) to test web applications through visible browser automation. Unlike single-agent testers, this system uses a "committee of agents" that analyze screenshots, discuss proposals, and reach consensus on actions. This approach significantly reduces hallucinations and improves bug detection coverage.
+
+The project has been expanded into a comprehensive **Research Framework** designed to validate hypotheses about multi-agent collaboration, persona diversity, and vision-enabled testing.
 
 ## Key Features
 
-- **Multi-Agent Committee**: 3+ LLaVA agents discuss and vote on actions
-- **Vision-Based Testing**: Agents analyze screenshots to understand UI
-- **Visible Browser**: Watch the testing happen in real-time
-- **Committee Discussion**: Agents see each other's proposals before voting
-- **Simplified Storage**: Single CSV file per session with all data
-- **Interactive Dashboard**: Streamlit UI to visualize results and agent proposals
-- **Security Testing**: Validates actions against SQL injection, XSS, etc.
+- **Multi-Agent Committee**: 3-round voting protocol (Proposal → Discussion → Consensus).
+- **Vision-Based Testing**: Agents "see" the UI via screenshots, enabling testing of visual elements.
+- **Experimental Infrastructure**: Automated runner for large-scale experiments (e.g., N=60 runs).
+- **Metric Collection**: SQLite database tracking 15+ metrics (consensus rates, latency, bug detection).
+- **Persona-Driven**: Configurable personas (e.g., "Adversarial Attacker", "UX Researcher") to find specific bug types.
+- **Security Testing**: Integrated OWASP checks (SQLi, XSS) and regression testing.
+- **Interactive Dashboard**: Streamlit UI for analyzing agent discussions and results.
 
 ## Architecture
 
-```
-┌─────────────────────────────────────────────┐
-│           Multi-Agent Committee             │
-│  ┌──────┐  ┌──────┐  ┌──────┐               │
-│  │Agent1│  │Agent2│  │Agent3│               │
-│  └───┬──┘  └───┬──┘  └───┬──┘               │
-│      │         │         │                  │
-│      └─────────┼─────────┘                  │
-│                ▼                            │
-│         Consensus Vote                      │
-└─────────────────┬───────────────────────────┘
-                  │
-         ┌────────▼────────┐
-         │ Browser Adapter │  (Playwright - Visible)
-         │  + Screenshots  │
-         └────────┬────────┘
-                  │
-         ┌────────▼────────┐
-         │   Validators    │  (Security checks)
-         └────────┬────────┘
-                  │
-         ┌────────▼────────┐
-         │  CSV Storage    │
-         └────────┬────────┘
-                  │
-         ┌────────▼────────┐
-         │Streamlit Dashboard│
-         └─────────────────┘
+```mermaid
+graph TD
+    User[User / Config] -->|Starts| Runner[Experiment Runner]
+    Runner -->|Orchestrates| Session[Multi-Agent Session]
+    
+    subgraph "Committee Decision Process"
+        Session -->|1. Observation| Agents[Agent Committee]
+        Agents -->|2. Proposal| Discussion[Discussion Round]
+        Discussion -->|3. Refinement| Vote[Consensus Vote]
+    end
+    
+    Vote -->|Action| Browser[Browser Adapter (Playwright)]
+    Browser -->|Screenshot/DOM| Session
+    
+    subgraph "Data & Analysis"
+        Session -->|Log Turn| DB[(SQLite Database)]
+        DB --> Dashboard[Streamlit Dashboard]
+        DB --> Analysis[Statistical Analysis]
+    end
 ```
 
-## Quick Start
+## Quick Start (Single Session)
 
 ### 1. Install Dependencies
 
 ```bash
 pip install -r requirements.txt
-
-# Install Playwright browsers
 playwright install chromium
 ```
 
-### 2. Install and Start Ollama with LLaVA
+### 2. Setup LLM Provider (Ollama / OpenAI / Google)
 
 ```bash
-# Install Ollama (macOS)
+# For local LLaVA:
 brew install ollama
-
-# Start Ollama service
 ollama serve
-
-# Pull LLaVA model (in another terminal)
 ollama pull llava
 ```
 
-### 3. Start the Application Under Test
+### 3. Start Application Under Test (AUT)
 
 ```bash
 # Start the demo e-commerce app
 uvicorn aut_service:app --port 8000
-
-# Verify it's running
-curl http://localhost:8000/health
 ```
 
 ### 4. Run a Test Session
 
 ```bash
-# Run with default settings (3 agents, online_shopper persona)
+# Run with default settings (4 agents, online_shopper)
 python main.py
 
-# Customize the test
-python main.py --persona personas/adversarial_attacker.yaml --agents 5
+# Customize the session
+python main.py --persona personas/adversarial_attacker.yaml --agents 2
 ```
 
-**What you'll see:**
-- Browser window opens (visible mode)
-- Agents discuss in console: "Agent 1 proposes...", "Agent 2 proposes..."
-- Consensus vote displayed
-- Actions executed in browser
-- CSV saved to `results/` folder
-
-### 5. View Results in Dashboard
+### 5. View Results
 
 ```bash
-# Launch Streamlit dashboard
 streamlit run dashboard_app.py
-
-# In browser: Upload the CSV from results/ folder
 ```
+
+## Experimental Infrastructure
+
+This project includes a robust infrastructure for running controlled experiments, located in the `experiments/` directory.
+
+### Core Components
+- **`experiments/runner.py`**: Orchestrates batch runs based on YAML configurations. Handles seeding, checkpointing, and parallel execution.
+- **`experiments/metrics_collector.py`**: Calculates comprehensive metrics for each run, including task success, safety violations, and inter-agent agreement (Fleiss' kappa).
+- **`experiments/bug_injector.py`**: Manages ground-truth bugs to measure detection rates.
+- **`experiments/schema.sql`**: SQLite schema for storing granular run data.
+
+### Running Experiments
+
+To run a full experiment (e.g., verifying multi-agent scaling):
+
+```bash
+# Run the scaling experiment (Experiment 1A)
+python experiments/runner.py --config experiments/configs/experiment_1a_scaling.yaml
+```
+
+## Research Experiments
+
+We are conducting several key experiments to validate the framework:
+
+| Exp | Name | Hypothesis |
+|-----|------|------------|
+| **1A** | **Multi-Agent Scaling** | Larger committees (up to 4) achieve higher bug detection rates due to error correction. |
+| **1B** | **Persona Diversity** | Distinct personas (Attacker vs. Shopper) find disjoint sets of bugs. |
+| **1C** | **Vision Impact** | Vision-enabled models outperform text-only DOM parsers on UI-heavy tasks. |
+| **1D** | **Regression Detection** | Multi-agent committees are more reliable at catching regressions across versions. |
+| **2** | **OWASP Security** | The framework can autonomously detect OWASP Top 10 vulnerabilities (SQLi, XSS). |
 
 ## Project Structure
 
-```
+```text
 LLM_Agents_For_Beta_Testing/
-├── app/
-│   ├── agent.py                    # LLM agent with vision support
-│   ├── browser_adapter.py          # Playwright automation + screenshots
-│   ├── html_parser.py              # Parse page elements
-│   ├── llm_client.py               # Ollama LLaVA client
-│   ├── multi_agent_committee.py    # Committee discussion protocol
-│   ├── multi_agent_runner.py       # Session orchestration
-│   ├── persona.py                  # YAML loaders
-│   ├── schemas.py                  # Pydantic models
-│   ├── storage.py                  # CSV storage
-│   └── validators.py               # Security checks
-├── config/
-│   └── model_config.yaml           # LLaVA configuration
-├── personas/
-│   ├── online_shopper.yaml         # Normal user
-│   ├── adversarial_attacker.yaml   # Security tester
-│   ├── price_manipulator.yaml      # Business logic tester
+├── app/                        # Core Application Logic
+│   ├── multi_agent_runner.py   # Session orchestrator
+│   ├── multi_agent_committee.py # Voting protocol implementation
+│   ├── browser_adapter.py      # Playwright automation
+│   ├── agent.py                # LLM agent wrapper
+│   └── storage.py              # CSV/File logging
+├── experiments/                # Research Infrastructure
+│   ├── runner.py               # Batch experiment runner
+│   ├── metrics_collector.py    # Statistical metrics
+│   ├── bug_injector.py         # Ground truth management
+│   └── configs/                # Experiment YAML configs
+├── personas/                   # Agent Personas (.yaml)
+│   ├── online_shopper.yaml
+│   ├── adversarial_attacker.yaml
 │   └── ...
-├── scenarios/
-│   ├── ui_shopping_flow.yaml       # E-commerce test
-│   ├── security_commerce_test.yaml # Security test
+├── scenarios/                  # Test Scenarios (.yaml)
+│   ├── ui_shopping_flow.yaml
 │   └── ...
-├── results/                        # Test results
-│   ├── {session_id}.csv           # Session data
-│   └── screenshots/               # Turn-by-turn screenshots
-│       └── {session_id}/
-│           ├── turn_1.png
-│           ├── turn_2.png
-│           └── ...
-├── aut_service.py                  # Demo e-commerce API
-├── config.py                       # Settings
-├── dashboard_app.py                # Streamlit dashboard
-├── main.py                         # CLI entry point
-└── requirements.txt
-
+├── results/                    # Output Directory
+│   ├── runs.db                 # SQLite database of comprehensive results
+│   └── {session_id}/           # Individual session artifacts (screenshots)
+├── paper/                      # NeurIPS Paper Assets
+├── aut_service.py              # Application Under Test (FastAPI)
+├── main.py                     # CLI Entry Point
+└── dashboard_app.py            # Streamlit Visualization
 ```
-
-## Usage Examples
-
-### Basic Test
-```bash
-python main.py
-```
-
-### Custom Number of Agents
-```bash
-python main.py --agents 5
-```
-
-### Security Testing
-```bash
-python main.py \
-  --persona personas/adversarial_attacker.yaml \
-  --scenario scenarios/security_commerce_test.yaml
-```
-
-### View Results
-```bash
-streamlit run dashboard_app.py
-```
-
-## How It Works
-
-### Multi-Agent Decision Process
-
-Each turn follows this protocol:
-
-1. **Round 1: Independent Proposals**
-   - Each agent analyzes screenshot independently
-   - Proposes an action (navigate, click, fill, report)
-   - Assigns confidence score
-
-2. **Round 2: Discussion & Refinement**
-   - Agents see others' proposals
-   - Refine their decisions
-   - May change mind or confirm original
-
-3. **Round 3: Consensus Vote**
-   - Actions grouped by type + target
-   - Weighted vote by confidence scores
-   - Highest score wins
-
-4. **Validation**
-   - Schema validation
-   - Security checks (SQL injection, XSS, etc.)
-   - Goal alignment
-
-5. **Execution**
-   - Action executed in browser
-   - Screenshot captured
-   - Results logged to CSV
-
-## Dashboard Features
-
-The Streamlit dashboard provides:
-
-- **Metrics Cards**: Success rate, safety pass rate, latency
-- **Agent Agreement Chart**: How often agents agree over time
-- **Action Distribution**: Pie chart of action types
-- **Latency Analysis**: Bar chart per turn
-- **Turn-by-Turn Viewer**: Expandable sections showing:
-  - Screenshot
-  - Each agent's proposal
-  - Confidence scores
-  - Final consensus
-  - Validation results
-
-## CSV Output Format
-
-Each session generates a CSV with these columns:
-
-| Column | Description |
-|--------|-------------|
-| `session_id` | Unique session identifier |
-| `turn` | Turn number (1, 2, 3...) |
-| `timestamp` | ISO timestamp |
-| `action_type` | navigate, click, fill, report |
-| `action_target` | Target element/URL |
-| `screenshot_path` | Path to screenshot |
-| `agent_proposals` | JSON array of all agent proposals |
-| `consensus_action` | JSON of winning action |
-| `confidence_scores` | JSON of agent confidence scores |
-| `success` | Boolean - action succeeded |
-| `latency` | Response time in seconds |
-| `safety_pass` | Boolean - passed security checks |
-| `validators` | Semicolon-separated validation results |
-
-## Personas
-
-### Online Shopper (Default)
-- Browse products
-- Add to cart
-- Complete checkout
-- Normal user behavior
-
-### Adversarial Attacker
-- SQL injection attempts
-- XSS attacks
-- Command injection
-- Path traversal
-- Tests security boundaries
-
-### Price Manipulator
-- Negative prices
-- Zero prices
-- Excessive quantities
-- Business logic attacks
 
 ## Configuration
 
-Edit `config/model_config.yaml`:
+### Model Configuration (`config/model_config.yaml`)
+Define your LLM providers here. We support **Ollama**, **OpenAI**, **Google Gemini**, **Anthropic**, and **xAI**.
 
 ```yaml
-model:
-  provider: ollama
-  base_url: http://localhost:11434/v1
-  name: llava
-  temperature: 0.2
-  max_retries: 2
+models:
+  - name: gpt-4o
+    provider: openai
+  - name: llava
+    provider: ollama
 ```
 
-Edit `config.py` for runtime settings:
-- `max_turns`: Maximum turns per session (default: 3)
-- `api_base_url`: AUT base URL (default: http://localhost:8000)
+### Runtime Configuration (`config.py`)
+Control global settings like `MAX_TURNS` and API locations.
 
-## Troubleshooting
+## Data & Analysis
 
-### Ollama Connection Error
-```bash
-# Check if Ollama is running
-ps aux | grep ollama
+All experimental data is logged to `results/runs.db` (SQLite). You can export this data for analysis or visualize it using the dashboard.
 
-# Start Ollama
-ollama serve
-```
-
-### LLaVA Model Not Found
-```bash
-# Pull the model
-ollama pull llava
-
-# List available models
-ollama list
-```
-
-### Browser Not Opening
-- Check that `headless=False` in `browser_adapter.py`
-- Ensure Playwright is installed: `playwright install chromium`
-
-### Dashboard Not Showing Screenshots
-- Ensure screenshot paths in CSV are absolute or relative to dashboard location
-- Check that `results/screenshots/{session_id}/` directory exists
-
-## Research Context
-
-**Course**: Introduction to Deep Learning Systems (IDLS)  
-**Institution**: New York University  
-**Research Question**: Can multi-agent LLM committees with vision effectively replace human beta testers?
-
-## Key Insights
-
-- **Multi-agent improves reliability**: Committee voting reduces hallucinations
-- **Vision enables UI testing**: LLaVA can understand visual interfaces
-- **Discussion refines decisions**: Agents change mind ~20% after seeing others' proposals
-- **Security testing works**: Successfully detects SQL injection, XSS attempts
-- **Visible browser aids debugging**: Watching tests helps understand agent behavior
+**Key Metrics Tracked:**
+- **Task Success Rate**: Percentage of scenarios completed.
+- **Bug Detection Rate**: Percentage of injected bugs found.
+- **Consensus Rate**: How often agents agree.
+- **Safety Violations**: Attempts to perform dangerous actions.
+- **Latency**: Time per turn.
 
 ## License
 
@@ -325,5 +177,5 @@ MIT License
 
 ## Authors
 
-- Dhiwahar Adhithya Kennady (dk5025)
-- Sumanth Bharadwaj Hachalli Karanam (sh8111)
+- **Dhiwahar Adhithya Kennady** (dk5025)
+- **Sumanth Bharadwaj Hachalli Karanam** (sh8111)
