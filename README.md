@@ -21,13 +21,13 @@ This framework uses **multi-agent LLM committees** with **vision capabilities** 
 ```
 ┌─────────────────────────────────────────────┐
 │           Multi-Agent Committee             │
-│  ┌──────┐  ┌──────┐  ┌──────┐             │
-│  │Agent1│  │Agent2│  │Agent3│  (LLaVA)    │
-│  └───┬──┘  └───┬──┘  └───┬──┘             │
+│  ┌──────┐  ┌──────┐  ┌──────┐               │
+│  │Agent1│  │Agent2│  │Agent3│               │
+│  └───┬──┘  └───┬──┘  └───┬──┘               │
 │      │         │         │                  │
 │      └─────────┼─────────┘                  │
-│                ▼                             │
-│         Consensus Vote                       │
+│                ▼                            │
+│         Consensus Vote                      │
 └─────────────────┬───────────────────────────┘
                   │
          ┌────────▼────────┐
