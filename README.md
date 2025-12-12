@@ -31,7 +31,7 @@ graph TD
         Discussion -->|3. Refinement| Vote[Consensus Vote]
     end
     
-    Vote -->|Action| Browser[Browser Adapter (Playwright)]
+    Vote -->|Action| Browser["Browser Adapter (Playwright)"]
     Browser -->|Screenshot/DOM| Session
     
     subgraph "Data & Analysis"
